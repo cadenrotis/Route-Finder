@@ -3,15 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/community"
+        android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Community" />
-
     <item
-        android:id="@+id/your_routes"
+        android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Your Routes" />
-
     <item
-        android:id="@+id/Map"
+        android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Map" />
-
 </menu>
