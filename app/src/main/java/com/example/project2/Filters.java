@@ -18,8 +18,6 @@
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.example.project2.model.Restaurant;
-import com.example.project2.util.RestaurantUtil;
 import com.google.firebase.firestore.Query;
 
 /**
@@ -37,7 +35,6 @@ public class Filters {
 
     public static Filters getDefault() {
         Filters filters = new Filters();
-        filters.setSortBy(Restaurant.FIELD_AVG_RATING);
         filters.setSortDirection(Query.Direction.DESCENDING);
 
         return filters;
@@ -127,20 +124,9 @@ public class Filters {
         if (price > 0) {
             desc.append(" for ");
             desc.append("<b>");
-            desc.append(RestaurantUtil.getPriceString(price));
             desc.append("</b>");
         }
 
         return desc.toString();
-    }
-
-    public String getOrderDescription(Context context) {
-        if (Restaurant.FIELD_PRICE.equals(sortBy)) {
-            return context.getString(R.string.sorted_by_price);
-        } else if (Restaurant.FIELD_POPULARITY.equals(sortBy)) {
-            return context.getString(R.string.sorted_by_popularity);
-        } else {
-            return context.getString(R.string.sorted_by_rating);
-        }
     }
 }
