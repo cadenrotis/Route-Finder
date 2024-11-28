@@ -43,31 +43,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/route_title">
 
-        <!-- Community Rating and Location -->
+        <!-- Community Rating and RatingBar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="2">
+            android:gravity="center_vertical"
+            android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/community_rating"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Community Rating"
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:paddingEnd="8dp" />
+                android:layout_marginEnd="8dp" />
 
-            <TextView
-                android:id="@+id/location"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_weight="1"
-                android:text="Location"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:paddingStart="8dp" />
+            <RatingBar
+                android:id="@+id/community_rating_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:scaleX=".6"
+                android:scaleY=".6"
+                android:stepSize="0.5" />
         </LinearLayout>
+
+        <!-- Location on a New Line -->
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="4dp"
+            android:text="Location"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:gravity="start" />
 
         <!-- Difficulty -->
         <TextView
