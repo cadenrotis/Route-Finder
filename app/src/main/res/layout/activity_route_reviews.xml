@@ -62,34 +62,6 @@
         app:layout_constraintTop_toBottomOf="@id/route_name"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Empty Ratings View
-    <LinearLayout
-        android:id="@+id/view_empty_ratings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/header_image"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/pizza_monster"
-            style="@style/AppTheme.PizzaGuy" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_no_reviews"
-            android:textColor="@color/greyDisabled"
-            style="@style/AppTheme.Body1" />
-    </LinearLayout> -->
-
     <!-- Reviews RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/reviews_recycler_view"
@@ -99,7 +71,8 @@
         app:layout_constraintTop_toBottomOf="@id/header_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/view_all_reviews" />
+        app:layout_constraintBottom_toTopOf="@id/view_all_reviews"
+        tools:listitem="@layout/item_route_rating"/>
 
     <!-- View All Reviews Button -->
     <TextView
