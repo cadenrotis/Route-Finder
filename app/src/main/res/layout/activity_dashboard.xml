@@ -141,7 +141,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_label"
         tools:layoutManager="GridLayoutManager"
-        tools:spanCount="5" />
+        tools:spanCount="5"
+        tools:listitem="@layout/item_route"/>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
