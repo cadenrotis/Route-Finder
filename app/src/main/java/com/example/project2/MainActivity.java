@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.project2.util.RouteUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         mRoutesRecycler = findViewById(R.id.recycler_view);
         mEmptyView = findViewById(R.id.view_empty);
 
+        // Set up Test Routes button
+        Button testRoutesButton = findViewById(R.id.button_test_routes);
+        testRoutesButton.setOnClickListener(v -> generateRoutes());
+
         initRecyclerView();
     }
 
@@ -126,9 +132,14 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         }
     }
 
-    // Randomly generate a few routes for testing
-    private void generateRandomRoutes() {
+    private void generateRoutes() {
+        CollectionReference routes = mFirestore.collection("routes");
 
+        // Generate and add 2 random Route objects to Firestore
+        for (int i = 0; i < 2; i++) {
+            Route randomRoute = RouteUtil.getRandom(this);
+            routes.add(randomRoute);
+        }
     }
 
     @Override
