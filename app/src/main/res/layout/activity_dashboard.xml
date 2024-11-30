@@ -7,35 +7,19 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- Back Icon -->
-    <ImageView
-        android:id="@+id/back_icon"
+    <!-- Username Title -->
+    <TextView
+        android:id="@+id/username_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@color/white"
-        android:contentDescription="Back"
-        android:src="@drawable/ic_arrow_back_white_24px"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/greyPrimary" />
-
-    <!-- Username Title -->
-    <TextView
-        android:id="@+id/username_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
         android:text="Username"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
-        app:layout_constraintStart_toEndOf="@+id/back_icon"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Sort and Filter Icons -->
     <LinearLayout
@@ -142,6 +126,36 @@
         tools:layoutManager="GridLayoutManager"
         tools:spanCount="5"
         tools:listitem="@layout/item_route"/>
+
+    <!-- Empty list (pizza guy) view -->
+    <LinearLayout
+        android:id="@+id/view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_label"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <ImageView
+            style="@style/AppTheme.PizzaGuy"
+            android:src="@drawable/pizza_monster" />
+
+        <TextView
+            style="@style/AppTheme.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No routes have been created"
+            android:textColor="@color/greyDisabled" />
+
+    </LinearLayout>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

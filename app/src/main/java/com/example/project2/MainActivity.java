@@ -1,6 +1,9 @@
 package com.example.project2;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +11,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.example.project2.adapter.RouteAdapter;
+import com.example.project2.model.Route;
+
+public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRouteSelectedListener {
+
+    private static final String TAG = "MainActivity";
+    private static final int LIMIT = 50;
+
+    private RecyclerView mRoutesRecycler;
+    private ViewGroup mEmptyView;
+
+    private FirebaseFirestore mFirestore;
+    private Query mQuery;
+    private RouteAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,5 +58,82 @@ public class MainActivity extends AppCompatActivity {
         // Set the username in the TextView
         TextView usernameTitle = findViewById(R.id.username_title);
         usernameTitle.setText(username);
+
+        // Initialize Firestore
+        mFirestore = FirebaseFirestore.getInstance();
+
+        // Set up Firestore query to fetch routes
+        mQuery = mFirestore.collection("routes")
+                .orderBy("avgRating", Query.Direction.DESCENDING)
+                .limit(LIMIT);
+
+        // Initialize RecyclerView
+        mRoutesRecycler = findViewById(R.id.recycler_view);
+        mEmptyView = findViewById(R.id.view_empty);
+
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
+        if (mQuery == null) {
+            Log.w(TAG, "No query, not initializing RecyclerView");
+        }
+
+        // Create a new adapter
+        mAdapter = new RouteAdapter(mQuery, this) {
+            @Override
+            protected void onDataChanged() {
+                // Show or hide RecyclerView based on query results
+                if (getItemCount() == 0) {
+                    mRoutesRecycler.setVisibility(View.GONE);
+                    mEmptyView.setVisibility(View.VISIBLE);
+                } else {
+                    mRoutesRecycler.setVisibility(View.VISIBLE);
+                    mEmptyView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            protected void onError(FirebaseFirestoreException e) {
+                // Show error message
+                Snackbar.make(findViewById(android.R.id.content),
+                        "Error: Check logs for details.", Snackbar.LENGTH_LONG).show();
+            }
+        };
+
+        // Set up RecyclerView with a grid layout (3 columns for the grid)
+        mRoutesRecycler.setLayoutManager(new GridLayoutManager(this, 3));
+        mRoutesRecycler.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Start listening to Firestore updates
+        if (mAdapter != null) {
+            mAdapter.startListening();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Stop listening to Firestore updates
+        if (mAdapter != null) {
+            mAdapter.stopListening();
+        }
+    }
+
+    // Randomly generate a few routes for testing
+    private void generateRandomRoutes() {
+
+    }
+
+    @Override
+    public void onRouteSelected(DocumentSnapshot route) {
+        // Handle route selection (navigate to a details screen, for example)
+        Log.d(TAG, "Route selected: " + route.getId());
     }
 }
