@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * Utilities for Routes.
+ * Utilities for generating random Route objects for testing.
  */
 public class RouteUtil {
 
