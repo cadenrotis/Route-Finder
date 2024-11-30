@@ -14,6 +14,8 @@ public class Route {
     public static final String FIELD_SLOPE = "slope";
     public static final String FIELD_NUM_RATINGS = "numRatings";
     public static final String FIELD_AVG_RATING = "avgRating";
+    public static final String FIELD_DIFFICULTY_ORDER = "difficultyOrder";
+    public static final String FIELD_SLOPE_ORDER = "slopeOrder";
 
     private String communityName;
     private String city;
@@ -22,6 +24,8 @@ public class Route {
     private String slope;
     private int numRatings;
     private double avgRating;
+    private int difficultyOrder;
+    private int slopeOrder;  // used for sorting routes by their difficulty
 
     public Route() {}
 
@@ -58,6 +62,7 @@ public class Route {
 
     public void setDifficulty(String difficulty) {
         this.difficulty = difficulty;
+        this.difficultyOrder = calculateDifficultyOrder(difficulty);
     }
 
     public String getPhoto() {
@@ -74,6 +79,7 @@ public class Route {
 
     public void setSlope(String slope) {
         this.slope = slope;
+        this.slopeOrder = calculateSlopeOrder(slope);
     }
 
     public int getNumRatings() {
@@ -90,5 +96,56 @@ public class Route {
 
     public void setAvgRating(double avgRating) {
         this.avgRating = avgRating;
+    }
+
+    public int getDifficultyOrder() {
+        return difficultyOrder;
+    }
+
+    public void setDifficultyOrder(int difficultyOrder) {
+        this.difficultyOrder = difficultyOrder;
+    }
+
+    public int getSlopeOrder() {
+        return slopeOrder;
+    }
+
+    public void setSlopeOrder(int slopeOrder) {
+        this.slopeOrder = slopeOrder;
+    }
+
+
+    // Helper method to calculate the difficulty order for sorting by difficulty
+    public static int calculateDifficultyOrder(String difficulty) {
+        if (difficulty == null) return Integer.MAX_VALUE; // Unknown difficulty
+        switch (difficulty.toLowerCase()) {
+            case "easy":
+                return 1;
+            case "moderate":
+                return 2;
+            case "hard":
+                return 3;
+            case "expert":
+                return 4;
+            default:
+                return Integer.MAX_VALUE; // Unknown difficulty
+        }
+    }
+
+    // Helper method to calculate the slope order for sorting by slope
+    public static int calculateSlopeOrder(String slope) {
+        if (slope == null) return Integer.MAX_VALUE; // Unknown slope
+        switch (slope.toLowerCase()) {
+            case "gentle":
+                return 1;
+            case "inclined":
+                return 2;
+            case "steep":
+                return 3;
+            case "very steep":
+                return 4;
+            default:
+                return Integer.MAX_VALUE; // Unknown slope
+        }
     }
 }

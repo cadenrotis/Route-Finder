@@ -1,33 +1,21 @@
-/**
- * Copyright 2017 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
- package com.example.project2;
+package com.example.project2;
 
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.example.project2.model.Route;
+import com.example.project2.util.RouteUtil;
 import com.google.firebase.firestore.Query;
 
 /**
- * Object for passing filters around.
+ * Object for passing filters related to Routes.
  */
 public class Filters {
 
-    private String category = null;
+    private String communityName = null;
     private String city = null;
-    private int price = -1;
+    private String difficulty = null;
+    private String slope = null;
     private String sortBy = null;
     private Query.Direction sortDirection = null;
 
@@ -36,32 +24,36 @@ public class Filters {
     public static Filters getDefault() {
         Filters filters = new Filters();
         filters.setSortDirection(Query.Direction.DESCENDING);
-
+        filters.setSortBy(Route.FIELD_AVG_RATING); // Default sorting by average rating
         return filters;
     }
 
-    public boolean hasCategory() {
-        return !(TextUtils.isEmpty(category));
+    public boolean hasCommunityName() {
+        return !TextUtils.isEmpty(communityName);
     }
 
     public boolean hasCity() {
-        return !(TextUtils.isEmpty(city));
+        return !TextUtils.isEmpty(city);
     }
 
-    public boolean hasPrice() {
-        return (price > 0);
+    public boolean hasDifficulty() {
+        return !TextUtils.isEmpty(difficulty);
+    }
+
+    public boolean hasSlope() {
+        return !TextUtils.isEmpty(slope);
     }
 
     public boolean hasSortBy() {
-        return !(TextUtils.isEmpty(sortBy));
+        return !TextUtils.isEmpty(sortBy);
     }
 
-    public String getCategory() {
-        return category;
+    public String getCommunityName() {
+        return communityName;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCommunityName(String communityName) {
+        this.communityName = communityName;
     }
 
     public String getCity() {
@@ -72,12 +64,20 @@ public class Filters {
         this.city = city;
     }
 
-    public int getPrice() {
-        return price;
+    public String getDifficulty() {
+        return difficulty;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public String getSlope() {
+        return slope;
+    }
+
+    public void setSlope(String slope) {
+        this.slope = slope;
     }
 
     public String getSortBy() {
@@ -99,31 +99,39 @@ public class Filters {
     public String getSearchDescription(Context context) {
         StringBuilder desc = new StringBuilder();
 
-        if (category == null && city == null) {
+        if (TextUtils.isEmpty(communityName) && TextUtils.isEmpty(city)) {
             desc.append("<b>");
-            desc.append(context.getString(R.string.all_restaurants));
+            desc.append(context.getString(R.string.all_routes));
             desc.append("</b>");
         }
 
-        if (category != null) {
+        if (!TextUtils.isEmpty(communityName)) {
             desc.append("<b>");
-            desc.append(category);
+            desc.append(communityName);
             desc.append("</b>");
         }
 
-        if (category != null && city != null) {
+        if (!TextUtils.isEmpty(communityName) && !TextUtils.isEmpty(city)) {
             desc.append(" in ");
         }
 
-        if (city != null) {
+        if (!TextUtils.isEmpty(city)) {
             desc.append("<b>");
             desc.append(city);
             desc.append("</b>");
         }
 
-        if (price > 0) {
-            desc.append(" for ");
+        if (!TextUtils.isEmpty(difficulty)) {
+            desc.append(", Difficulty: ");
             desc.append("<b>");
+            desc.append(difficulty);
+            desc.append("</b>");
+        }
+
+        if (!TextUtils.isEmpty(slope)) {
+            desc.append(", Slope: ");
+            desc.append("<b>");
+            desc.append(slope);
             desc.append("</b>");
         }
 

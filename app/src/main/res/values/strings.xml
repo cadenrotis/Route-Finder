@@ -15,7 +15,7 @@
     <string name="label_sort_by">Sort By</string>
 
     <string name="fmt_num_ratings" translatable="false">(%d)</string>
-    <string name="all_restaurants">All Restaurants</string>
+    <string name="all_routes">All Routes</string>
     <string name="header_filters">Filter</string>
     <string name="search">Search</string>
 

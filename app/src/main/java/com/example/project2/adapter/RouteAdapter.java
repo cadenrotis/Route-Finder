@@ -67,8 +67,8 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
                     .into(iconView);
 
             titleView.setText(route.getCommunityName());
-            subtitleView.setText(String.format("Difficulty: %s\nSlope: %s\nRating: %.2f",
-                    route.getDifficulty(), route.getSlope(), route.getAvgRating()));
+            subtitleView.setText(String.format("Location: %s\nDifficulty: %s\nSlope: %s\nRating: %.2f",
+                    route.getCity(), route.getDifficulty(), route.getSlope(), route.getAvgRating()));
 
             // Click listener
             itemView.setOnClickListener(view -> {
