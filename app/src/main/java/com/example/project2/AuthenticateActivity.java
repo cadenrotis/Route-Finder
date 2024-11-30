@@ -33,7 +33,7 @@ public class AuthenticateActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 
-        // Initialize views
+        // Initialize elements in view
         usernameField = findViewById(R.id.username);
         passwordField = findViewById(R.id.password);
         loginButton = findViewById(R.id.btn_login);
@@ -47,18 +47,21 @@ public class AuthenticateActivity extends AppCompatActivity {
         loginButton.setOnClickListener(v -> handleAuth());
     }
 
+    // Switch to the login screen when the login radio button is clicked
     private void switchToLogin() {
         radioSignup.setChecked(false);
         loginLabel.setText("Login");
         loginButton.setText("Login");
     }
 
+    // Switch to the signup screen when the signup radio button is clicked
     private void switchToSignup() {
         radioLogin.setChecked(false);
         loginLabel.setText("Sign Up");
         loginButton.setText("Sign Up");
     }
 
+    // Handle the login or signup button click
     private void handleAuth() {
         String email = usernameField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
@@ -75,6 +78,7 @@ public class AuthenticateActivity extends AppCompatActivity {
         }
     }
 
+    // Login user using Firebase Auth
     private void loginUser(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -90,6 +94,7 @@ public class AuthenticateActivity extends AppCompatActivity {
                 });
     }
 
+    // Signup user using Firebase Auth
     private void signupUser(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -105,6 +110,7 @@ public class AuthenticateActivity extends AppCompatActivity {
                 });
     }
 
+    // Navigate to the dashboard activity when user successfully logs in or signs up
     private void navigateToDashboard() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
