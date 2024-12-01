@@ -16,12 +16,14 @@ public class Route {
     public static final String FIELD_AVG_RATING = "avgRating";
     public static final String FIELD_DIFFICULTY_ORDER = "difficultyOrder";
     public static final String FIELD_SLOPE_ORDER = "slopeOrder";
+    public static final String FIELD_DESCRIPTION = "description"; // New constant
 
     private String title;
     private String city;
     private String difficulty;
     private String photo;
     private String slope;
+    private String description;
     private int numRatings;
     private double avgRating;
     private int difficultyOrder; // Used for sorting routes by their difficulty
@@ -30,12 +32,13 @@ public class Route {
     public Route() {}
 
     public Route(String title, String city, String difficulty, String photo,
-                 String slope, int numRatings, double avgRating) {
+                 String slope, String description, int numRatings, double avgRating) {
         this.title = title;
         this.city = city;
         this.difficulty = difficulty;
         this.photo = photo;
         this.slope = slope;
+        this.description = description;
         this.numRatings = numRatings;
         this.avgRating = avgRating;
         this.difficultyOrder = calculateDifficultyOrder(difficulty);
@@ -82,6 +85,14 @@ public class Route {
     public void setSlope(String slope) {
         this.slope = slope;
         this.slopeOrder = calculateSlopeOrder(slope);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getNumRatings() {

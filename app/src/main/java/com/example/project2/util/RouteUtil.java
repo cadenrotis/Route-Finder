@@ -5,7 +5,6 @@ import android.content.Context;
 import com.example.project2.R;
 import com.example.project2.model.Route;
 
-import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -38,6 +37,17 @@ public class RouteUtil {
             "Very Steep"
     };
 
+    private static final String[] DESCRIPTIONS = {
+            "A beautiful scenic route with gentle inclines.",
+            "Perfect for intermediate climbers looking for a challenge.",
+            "A steep path with breathtaking views at the summit.",
+            "Ideal for beginners to learn the basics of climbing.",
+            "An expert-level trail with sharp slopes and rocky terrain.",
+            "Enjoy a moderate hike through lush greenery and meadows.",
+            "An exhilarating climb with steep paths and tricky turns.",
+            "A gentle walk along serene landscapes and creeks."
+    };
+
     /**
      * Array of drawable resource IDs for rock climbing route pictures.
      */
@@ -61,6 +71,7 @@ public class RouteUtil {
         route.setCity(getRandomString(cities, random));
         route.setDifficulty(getRandomString(DIFFICULTY_LEVELS, random));
         route.setSlope(getRandomString(SLOPES, random));
+        route.setDescription(getRandomString(DESCRIPTIONS, random));
         route.setPhoto(getRandomImage(random, context));
         route.setAvgRating(getRandomRating(random));
         route.setNumRatings(random.nextInt(50)); // Up to 50 ratings

@@ -45,7 +45,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
 
         // Set up back button
-        backButton.setOnClickListener(v -> finish());
+        backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
 
         // Set up submit button
         submitButton.setOnClickListener(v -> handleSubmit());
@@ -79,11 +79,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setCity(location);
         route.setSlope(slope);
         route.setDifficulty(difficulty);
+        route.setDescription(description);
         route.setNumRatings(0); // Default value
         route.setAvgRating(0.0); // Default value
         route.setPhoto(null); // Placeholder for photo
-        route.setDifficultyOrder(Route.calculateDifficultyOrder(difficulty));
-        route.setSlopeOrder(Route.calculateSlopeOrder(slope));
 
         // Save to "user_routes"
         firestore.collection("user_routes")
