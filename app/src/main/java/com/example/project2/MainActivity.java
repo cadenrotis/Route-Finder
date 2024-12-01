@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
 
     // Filter routes based on user's input into the search bar
     private void applySearch(String searchText) {
+        // If user has not selected a filter option (button), then don't filter routes via searching
         if (selectedFilterButton == null) {
             // Default behavior if no filter button is selected
             mQuery = mFirestore.collection("routes")
@@ -258,12 +259,23 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
     }
 
 
-    // Utility method to capitalize the first letter of a string since Firebase is case-sensitive.
+    // Capitalize the first letter of each word in user's search input since Firebase is case-sensitive.
     private String capitalizeFirstLetter(String text) {
         if (text == null || text.isEmpty()) {
             return text;
         }
-        return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+        String[] words = text.split(" ");
+        StringBuilder capitalizedText = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                capitalizedText.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1).toLowerCase())
+                        .append(" ");
+            }
+        }
+
+        return capitalizedText.toString().trim();
     }
 
     @Override
