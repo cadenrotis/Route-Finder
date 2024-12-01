@@ -24,6 +24,7 @@
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".CreateRouteActivity" />
+        <activity android:name=".RouteDetailActivity" />
     </application>
 
 </manifest>

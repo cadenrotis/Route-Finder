@@ -36,7 +36,8 @@ import com.example.project2.model.Route;
 /**
  * Activity for displaying the dashboard view with a list of different routes from the database
  */
-public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRouteSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        RouteAdapter.OnRouteSelectedListener {
 
     private static final String TAG = "MainActivity";
     private static final int LIMIT = 50;
@@ -108,10 +109,9 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         Button testRoutesButton = findViewById(R.id.button_test_routes);
         testRoutesButton.setOnClickListener(v -> generateRoutes());
 
-        // Set up Create Route button
+        // When "Create Route" button is pressed, go to view that allows user to create a route
         buttonCreateRoutes = findViewById(R.id.button_create_routes);
         buttonCreateRoutes.setOnClickListener(v -> {
-            // Launch route creation activity
             Intent intent = new Intent(MainActivity.this, CreateRouteActivity.class);
             startActivity(intent);
         });
@@ -363,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         }
     }
 
+    // Generate 2 random routes and add them to Firestore when "Test Routes" button is pressed
     private void generateRoutes() {
         CollectionReference routes = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes");
 
@@ -373,9 +374,19 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         }
     }
 
+    // When a route is clicked, user will be redirected to a view that contains more information about the route
     @Override
     public void onRouteSelected(DocumentSnapshot route) {
-        // Handle route selection (navigate to a details screen, for example)
-        Log.d(TAG, "Route selected: " + route.getId());
+        // Go to the details page for the selected route
+        Intent intent = new Intent(this, RouteDetailActivity.class);
+
+        // Give the id of the route as a parameter
+        intent.putExtra(RouteDetailActivity.KEY_ROUTE_ID, route.getId());
+
+        // Give the collection that the route is in as another parameter
+        intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION,
+                isCommunityView() ? "community_routes" : "user_routes");
+
+        startActivity(intent);
     }
 }
