@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ public class CreateRouteActivity extends AppCompatActivity {
     private EditText titleInput, locationInput, slopeInput, difficultyInput, descriptionInput;
     private Button submitButton;
     private ImageButton backButton;
+    private RadioButton publicRadioButton, privateRadioButton;
 
     // Firestore instance
     private FirebaseFirestore firestore;
@@ -46,6 +48,8 @@ public class CreateRouteActivity extends AppCompatActivity {
         descriptionInput = findViewById(R.id.description_input);
         submitButton = findViewById(R.id.btn_submit);
         backButton = findViewById(R.id.back_button);
+        publicRadioButton = findViewById(R.id.radio_public);
+        privateRadioButton = findViewById(R.id.radio_private);
 
         // Set up back button
         backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
@@ -87,31 +91,37 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setAvgRating(0.0); // Default value
         route.setPhoto(null); // Placeholder for photo
 
-        // Save to "user_routes"
-        firestore.collection("user_routes")
-                .add(route)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Route added to user_routes with ID: " + documentReference.getId());
-                    Toast.makeText(this, "Route added to your routes!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding route to user_routes", e);
-                    Toast.makeText(this, "Failed to add route to your routes", Toast.LENGTH_SHORT).show();
-                });
-
-        // Save to "community_routes"
-        firestore.collection("community_routes")
-                .add(route)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Route added to community_routes with ID: " + documentReference.getId());
-                    Toast.makeText(this, "Route added to the community!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding route to community_routes", e);
-                    Toast.makeText(this, "Failed to add route to the community", Toast.LENGTH_SHORT).show();
-                });
+        // Check the selected access type via the radio button checked by the user
+        if (publicRadioButton.isChecked()) {
+            // Save to both "user_routes" and "community_routes"
+            saveRouteToFirestore("user_routes", route);
+            saveRouteToFirestore("community_routes", route);
+        } else if (privateRadioButton.isChecked()) {
+            // Save only to "user_routes"
+            saveRouteToFirestore("user_routes", route);
+        } else {
+            Toast.makeText(this, "Please select Public or Private access", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Finish the activity
         finish();
+    }
+
+    private void saveRouteToFirestore(String collection, Route route) {
+        firestore.collection(collection)
+                .add(route)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Route added to " + collection + " with ID: " + documentReference.getId());
+                    if (collection.equals("user_routes")) {
+                        Toast.makeText(this, "Route added to your routes!", Toast.LENGTH_SHORT).show();
+                    } else if (collection.equals("community_routes")) {
+                        Toast.makeText(this, "Route added to the community!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding route to " + collection, e);
+                    Toast.makeText(this, "Failed to add route to " + collection, Toast.LENGTH_SHORT).show();
+                });
     }
 }

@@ -280,9 +280,8 @@ public class MainActivity extends AppCompatActivity implements
     private void applySearch(String searchText) {
         // If user has not selected a filter option (button), then don't filter routes via searching
         if (selectedFilterButton == null) {
-            // Default behavior if no filter button is selected
-            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
-                    .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
+            // Default behavior if no filter button is selected, where no sorting is done
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes");
         }
         else {
             // Determine the field based on the currently selected filter button

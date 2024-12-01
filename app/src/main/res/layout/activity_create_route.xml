@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="10dp"
         android:text="Title"
         android:textAppearance="?attr/textAppearanceBody2"
         android:textColor="@color/black"
@@ -143,7 +143,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="4dp"
-        android:text="What is the slope of the wall?"
+        android:text="What is the slope of the wall? (gentle, inclined, steep, very steep)"
         android:textAppearance="?attr/textAppearanceCaption"
         android:textColor="@color/greyDark"
         app:layout_constraintEnd_toEndOf="parent"
@@ -182,7 +182,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
         android:layout_marginTop="4dp"
-        android:text="How difficult did you find your route?"
+        android:text="How difficult was your route? (easy, moderate, hard, expert)"
         android:textAppearance="?attr/textAppearanceCaption"
         android:textColor="@color/greyDark"
         app:layout_constraintEnd_toEndOf="parent"
@@ -228,13 +228,66 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/description_input" />
 
+    <!-- Public or Private Access Field -->
+    <TextView
+        android:id="@+id/user_access_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:text="Public or Private"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/description_helper" />
+
+    <!-- Radio buttons to declare if user wants their route to be public or private -->
+    <RadioGroup
+        android:id="@+id/user_access_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/description_helper">
+
+        <RadioButton
+            android:id="@+id/radio_public"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="190dp"
+            android:layout_marginEnd="16dp"
+            android:text="Public"
+            android:textColor="@color/black" />
+
+        <RadioButton
+            android:id="@+id/radio_private"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Private"
+            android:textColor="@color/black" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/user_access_helper"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="9dp"
+        android:text="Declare if you would like your route to be viewable by others"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:textColor="@color/greyDark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/user_access_label" />
+
     <!-- Submit and Edit Media Button -->
     <Button
         android:id="@+id/btn_submit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="80dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/purple_500"
         android:text="Submit and Edit Media"
