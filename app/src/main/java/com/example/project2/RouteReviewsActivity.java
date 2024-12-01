@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +20,12 @@ import com.example.project2.adapter.RatingAdapter;
 import com.example.project2.model.Rating;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
-public class RouteReviewsActivity extends AppCompatActivity {
+public class RouteReviewsActivity extends AppCompatActivity implements RatingDialogFragment.RatingListener {
 
     private static final String TAG = "RouteReviewsActivity";
     public static final String KEY_ROUTE_ID = "key_route_id";
@@ -40,6 +43,7 @@ public class RouteReviewsActivity extends AppCompatActivity {
     private TextView routeNameView;
     private View emptyView;
     private ImageButton backButton;
+    private Button reviewButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,12 +68,13 @@ public class RouteReviewsActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.view_empty);
         routeNameView = findViewById(R.id.route_name);
         backButton = findViewById(R.id.back_button);
+        reviewButton = findViewById(R.id.review_button);
 
         // Set up RecyclerView
         reviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Query Firestore for reviews
-        reviewsQuery = firestore.collection("routes/" + routeId + "/ratings")
+        reviewsQuery = routeRef.collection("ratings")
                 .orderBy("timestamp", Query.Direction.DESCENDING);
 
         // Set up Adapter
@@ -100,6 +105,13 @@ public class RouteReviewsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Review button to open RatingDialogFragment
+        reviewButton.setOnClickListener(v -> {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            RatingDialogFragment dialog = new RatingDialogFragment();
+            dialog.show(fragmentManager, RatingDialogFragment.TAG);
+        });
+
         // Load Route Name
         loadRouteName(routeId);
 
@@ -109,27 +121,18 @@ public class RouteReviewsActivity extends AppCompatActivity {
     }
 
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.nav_route){
+        if (item.getItemId() == R.id.nav_route) {
             switchToRouteView();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
-    // Go to the route details page when the "Route" button is pressed
     private void switchToRouteView() {
-        // Create an Intent to open the RouteDetailActivity
         Intent intent = new Intent(RouteReviewsActivity.this, RouteDetailActivity.class);
-
-        // Pass the route ID to the RouteDetailActivity
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_ID, routeRef.getId());
-
-        // Pass the collection the route is in (community_routes or user_routes)
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION, routeCollection);
-
-        // Start the RouteDetailActivity
         startActivity(intent);
     }
 
@@ -159,5 +162,47 @@ public class RouteReviewsActivity extends AppCompatActivity {
         if (ratingAdapter != null) {
             ratingAdapter.stopListening();
         }
+    }
+
+    // Add a new rating to the route in Firebase
+    @Override
+    public void onRating(Rating rating) {
+        // Add the rating to the "ratings" sub-collection in the current route
+        routeRef.collection("ratings").add(rating)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Rating added successfully to " + routeCollection + ": " + documentReference.getId());
+                    updateRouteAvgRating(rating.getRating());
+                    ratingAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error adding rating to " + routeCollection, e);
+                });
+    }
+
+    // Helper method to update the route's average rating and number of ratings
+    private void updateRouteAvgRating(double newRating) {
+        firestore.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(routeRef);
+
+            if (snapshot.exists()) {
+                // Get current values
+                long numRatings = snapshot.getLong("numRatings") != null ? snapshot.getLong("numRatings") : 0;
+                double avgRating = snapshot.getDouble("avgRating") != null ? snapshot.getDouble("avgRating") : 0.0;
+
+                // Calculate new average rating
+                long updatedNumRatings = numRatings + 1;
+                double updatedAvgRating = ((avgRating * numRatings) + newRating) / updatedNumRatings;
+
+                // Update the route document
+                transaction.update(routeRef, "numRatings", updatedNumRatings);
+                transaction.update(routeRef, "avgRating", updatedAvgRating);
+            }
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "Route average rating updated successfully.");
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error updating route average rating.", e);
+        });
     }
 }

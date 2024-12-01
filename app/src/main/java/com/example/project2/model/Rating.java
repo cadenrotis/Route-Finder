@@ -23,8 +23,10 @@ public class Rating {
     public Rating(FirebaseUser user, double rating, String text) {
         this.userId = user.getUid();
         this.userName = user.getDisplayName();
-        if (TextUtils.isEmpty(this.userName)) {
-            this.userName = user.getEmail();
+
+        // Use part of the email before '@' if displayName is empty
+        if (TextUtils.isEmpty(this.userName) && user.getEmail() != null) {
+            this.userName = user.getEmail().split("@")[0];
         }
 
         this.rating = rating;

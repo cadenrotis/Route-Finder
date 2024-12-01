@@ -36,7 +36,6 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView titleView;
         TextView dateView;
         RatingBar ratingBar;
         TextView usernameView;
@@ -44,7 +43,6 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            titleView = itemView.findViewById(R.id.review_title);
             dateView = itemView.findViewById(R.id.review_date);
             ratingBar = itemView.findViewById(R.id.review_rating);
             usernameView = itemView.findViewById(R.id.review_username);
@@ -52,7 +50,6 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
         }
 
         public void bind(Rating rating) {
-            titleView.setText(rating.getText());
             dateView.setText(rating.getFormattedTimestamp());
             ratingBar.setRating((float) rating.getRating());
             usernameView.setText(rating.getUserName());

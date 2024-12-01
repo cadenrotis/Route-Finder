@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.example.project2.model.Rating;
 import com.example.project2.util.FirebaseUtil;
+import com.google.firebase.auth.FirebaseAuth;
 
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
@@ -24,37 +25,43 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
 
     public static final String TAG = "RatingDialog";
 
-    private MaterialRatingBar mRatingBar;
-    private EditText mRatingText;
+    private MaterialRatingBar ratingBar;
+    private EditText reviewInput;
+    private Button submitButton;
+    private Button cancelButton;
 
     interface RatingListener {
         void onRating(Rating rating);
     }
 
-    private RatingListener mRatingListener;
+    private RatingListener ratingListener;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.dialog_rating, container, false);
-        mRatingBar = v.findViewById(R.id.restaurant_form_rating);
-        mRatingText = v.findViewById(R.id.restaurant_form_text);
+        View view = inflater.inflate(R.layout.dialog_rating, container, false);
 
-        // Set listeners for buttons
-        v.findViewById(R.id.restaurant_form_button).setOnClickListener(this);
-        v.findViewById(R.id.restaurant_form_cancel).setOnClickListener(this);
+        // Initialize UI components
+        ratingBar = view.findViewById(R.id.route_form_rating);
+        reviewInput = view.findViewById(R.id.route_user_input);
+        submitButton = view.findViewById(R.id.route_form_button);
+        cancelButton = view.findViewById(R.id.route_form_cancel);
 
-        return v;
+        // Set click listeners
+        submitButton.setOnClickListener(this);
+        cancelButton.setOnClickListener(this);
+
+        return view;
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         if (context instanceof RatingListener) {
-            mRatingListener = (RatingListener) context;
+            ratingListener = (RatingListener) context;
         }
     }
 
@@ -70,45 +77,33 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
 
     @Override
     public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.id.restaurant_form_button:
-//                onSubmitClicked(v);
-//                break;
-//            case R.id.restaurant_form_cancel:
-//                onCancelClicked(v);
-//                break;
-//        }
-
-        if(v.getId() == R.id.restaurant_form_button) {
+        if (v.getId() == R.id.route_form_button) {
             onSubmitClicked(v);
-        }
-        if(v.getId() == R.id.restaurant_form_cancel) {
+        } else if (v.getId() == R.id.route_form_cancel) {
             onCancelClicked(v);
         }
     }
 
-    // Called when the submit button is clicked (defined in XML)
-    public void onSubmitClicked(View view) {
+    // Called when the submit button is clicked
+    private void onSubmitClicked(View view) {
         FirebaseAuth auth = FirebaseUtil.getAuth();
         if (auth.getCurrentUser() != null) {
             Rating rating = new Rating(
                     auth.getCurrentUser(),
-                    mRatingBar.getRating(),
-                    mRatingText.getText().toString());
+                    ratingBar.getRating(),
+                    reviewInput.getText().toString()
+            );
 
-            if (mRatingListener != null) {
-                mRatingListener.onRating(rating);
+            if (ratingListener != null) {
+                ratingListener.onRating(rating);
             }
 
             dismiss();
-        } else {
-            // Handle the case where the user is not logged in
-            // For example, show a message or log an error
         }
     }
 
-    // Called when the cancel button is clicked (defined in XML)
-    public void onCancelClicked(View view) {
+    // Called when the cancel button is clicked
+    private void onCancelClicked(View view) {
         dismiss();
     }
 }

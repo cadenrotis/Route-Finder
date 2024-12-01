@@ -4,25 +4,25 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <!-- Title -->
+    <!-- Username -->
     <TextView
-        android:id="@+id/review_title"
+        android:id="@+id/review_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:layout_alignParentStart="true"
-        tools:text="Review Title" />
+        tools:text="Username" />
 
     <!-- Date -->
     <TextView
         android:id="@+id/review_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/review_title"
+        android:layout_toEndOf="@id/review_username"
         android:layout_marginStart="8dp"
-        android:layout_alignTop="@id/review_title"
+        android:layout_alignTop="@id/review_username"
         android:textSize="14sp"
         android:textColor="@color/greySecondary"
         tools:text="9/27/2023" />
@@ -35,22 +35,11 @@
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/review_date"
         android:layout_marginStart="80dp"
-        android:layout_alignTop="@id/review_title"
+        android:layout_alignTop="@id/review_username"
         android:stepSize="0.5"
         android:isIndicator="true"
         android:numStars="5"
         android:rating="4.5" />
-
-    <!-- Username -->
-    <TextView
-        android:id="@+id/review_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/review_title"
-        android:layout_marginTop="8dp"
-        android:textSize="14sp"
-        android:textColor="@color/greySecondary"
-        tools:text="Username" />
 
     <!-- Supporting Text -->
     <TextView
