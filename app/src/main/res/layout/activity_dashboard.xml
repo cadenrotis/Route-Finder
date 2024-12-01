@@ -167,7 +167,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="No routes have been created"
+            android:text="No routes available"
             android:textColor="@color/greyDisabled" />
 
     </LinearLayout>

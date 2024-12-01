@@ -197,7 +197,11 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
                     .orderBy(Route.FIELD_SLOPE_ORDER)
                     .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING);
         }
-        // Rating filter sorts routes by ascending order of average rating
+        // Rating filter sorts routes by descending order of average rating
+        else if (field.equals(Route.FIELD_AVG_RATING)) {
+            mQuery = mFirestore.collection("routes").orderBy(field, Query.Direction.DESCENDING);
+        }
+
         // Location filter sorts routes by ascending order of city name strings
         else {
             mQuery = mFirestore.collection("routes").orderBy(field, Query.Direction.ASCENDING);
@@ -212,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         if (selectedFilterButton == null) {
             // Default behavior if no filter button is selected
             mQuery = mFirestore.collection("routes")
-                    .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING);
+                    .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
         }
         else {
             // Determine the field based on the currently selected filter button
@@ -232,13 +236,17 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
                 // Use case-insensitive searching with Firestore's array-contains or equality logic
                 mQuery = mFirestore.collection("routes")
                         .whereEqualTo(field, capitalizeFirstLetter(searchText)) // Adjust string since Firebase is case-sensitive
-                        .orderBy(Route.FIELD_AVG_RATING, Query.Direction.ASCENDING);
+                        .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
             }
-            // if the currently selected filter button is Ratings, then nothing additional needs to be done for filtering uesr's input
+            // if the currently selected filter button is Ratings, then convert user input to an integer to show all routes with similar ratings
             else if (field != null && field.equals(Route.FIELD_AVG_RATING) && !searchText.isEmpty()) {
+                // Convert search text to an integer
+                int ratingValue = Integer.parseInt(searchText);
+
                 mQuery = mFirestore.collection("routes")
-                        .whereEqualTo(field, searchText) // Adjust input format
-                        .orderBy(Route.FIELD_AVG_RATING, Query.Direction.ASCENDING);
+                        .whereGreaterThanOrEqualTo(field, ratingValue) // ratingValue is a lower bound
+                        .whereLessThan(field, ratingValue+1)// ratingValue+1 is an upper bound
+                        .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
             }
             else {
                 applyFilter(field);
