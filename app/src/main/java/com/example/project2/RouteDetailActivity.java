@@ -3,19 +3,25 @@ package com.example.project2;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.project2.model.Route;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 /**
  * Activity for displaying information about a route when clicked on in the dashboard view
@@ -34,6 +40,7 @@ public class RouteDetailActivity extends AppCompatActivity {
     // Firestore
     private FirebaseFirestore firestore;
     private DocumentReference routeRef;
+    private String routeCollection;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +52,7 @@ public class RouteDetailActivity extends AppCompatActivity {
 
         // Get Route ID and Collection from Intent Extras
         String routeId = getIntent().getStringExtra(KEY_ROUTE_ID);
-        String routeCollection = getIntent().getStringExtra(KEY_ROUTE_COLLECTION);
+        routeCollection = getIntent().getStringExtra(KEY_ROUTE_COLLECTION);
         if (routeId == null || routeCollection == null) {
             throw new IllegalArgumentException("Must pass extras " + KEY_ROUTE_ID + " and " + KEY_ROUTE_COLLECTION);
         }
@@ -71,6 +78,35 @@ public class RouteDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(RouteDetailActivity.this, MainActivity.class);
             startActivity(intent);
         });
+
+        // Set up BottomNavigationView
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
+    }
+
+    private boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.nav_reviews){
+            switchToReviewsView();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    // Go to the route reviews page when the "Reviews" button is pressed
+    private void switchToReviewsView() {
+        // Create an Intent to open the RouteReviewsActivity
+        Intent intent = new Intent(RouteDetailActivity.this, RouteReviewsActivity.class);
+
+        // Pass the route ID to the RouteReviewsActivity
+        intent.putExtra(RouteReviewsActivity.KEY_ROUTE_ID, routeRef.getId());
+
+        // Pass the collection the route is in (community_routes or user_routes)
+        intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION, routeCollection);
+
+        // Start the RouteReviewsActivity
+        startActivity(intent);
     }
 
     // Fetch route information from the database

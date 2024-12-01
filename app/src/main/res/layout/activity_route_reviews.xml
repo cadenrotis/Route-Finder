@@ -40,7 +40,7 @@
         android:gravity="start"
         android:text="Route Name"
         android:textAppearance="?attr/textAppearanceHeadline4"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/header_image"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,6 +74,36 @@
         app:layout_constraintBottom_toTopOf="@id/view_all_reviews"
         tools:listitem="@layout/item_route_rating"/>
 
+    <!-- Empty list (pizza guy) view -->
+    <LinearLayout
+        android:id="@+id/view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintTop_toBottomOf="@id/header_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/view_all_reviews"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <ImageView
+            style="@style/AppTheme.PizzaGuy"
+            android:src="@drawable/pizza_monster" />
+
+        <TextView
+            style="@style/AppTheme.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="No reviews have been made"
+            android:textColor="@color/greyDisabled" />
+
+    </LinearLayout>
+
     <!-- View All Reviews Button -->
     <TextView
         android:id="@+id/view_all_reviews"
@@ -101,6 +131,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu_route" />
+        app:menu="@menu/bottom_nav_menu_route_reviews" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
