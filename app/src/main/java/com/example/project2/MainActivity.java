@@ -4,16 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project2.util.RouteUtil;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
     private Button filterSlopeButton;
     private EditText searchLabel;
 
+    private Button buttonCreateRoutes;
+
     private Button selectedFilterButton; // To track the selected filter button
 
     @Override
@@ -73,14 +78,15 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         // Initialize Firestore
         mFirestore = FirebaseFirestore.getInstance();
 
-        // Set up Firestore query to fetch routes
-        mQuery = mFirestore.collection("routes")
+        // Set up Firestore query to fetch routes for community-made routes
+        mQuery = mFirestore.collection("community_routes")
                 .orderBy("avgRating", Query.Direction.DESCENDING)
                 .limit(LIMIT);
 
         // Initialize RecyclerView
         mRoutesRecycler = findViewById(R.id.recycler_view);
         mEmptyView = findViewById(R.id.view_empty);
+        initRecyclerView();
 
         // Initialize filter buttons and search bar
         filterRatingButton = findViewById(R.id.filter_rating);
@@ -99,7 +105,63 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         Button testRoutesButton = findViewById(R.id.button_test_routes);
         testRoutesButton.setOnClickListener(v -> generateRoutes());
 
-        initRecyclerView();
+        // Set up Create Route button
+        buttonCreateRoutes = findViewById(R.id.button_create_routes);
+        buttonCreateRoutes.setOnClickListener(v -> {
+            // Launch route creation activity
+            Intent intent = new Intent(MainActivity.this, CreateRouteActivity.class);
+            startActivity(intent);
+        });
+
+        // Hide the create route button initially (for community view)
+        buttonCreateRoutes.setVisibility(View.GONE);
+
+        // Set up BottomNavigationView
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
+    }
+
+    private boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.nav_community){
+            switchToCommunityView();
+            return true;
+        }
+        else if(item.getItemId() == R.id.nav_your_routes){
+            switchToYourRoutesView();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void switchToCommunityView() {
+        mQuery = mFirestore.collection("community_routes")
+                .orderBy("avgRating", Query.Direction.DESCENDING)
+                .limit(LIMIT);
+        mAdapter.setQuery(mQuery);
+
+        // Hide the "Create Route" button
+        buttonCreateRoutes.setVisibility(View.GONE);
+    }
+
+    private void switchToYourRoutesView() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            mQuery = mFirestore.collection("user_routes")
+                    .orderBy("avgRating", Query.Direction.DESCENDING)
+                    .limit(LIMIT);
+            mAdapter.setQuery(mQuery);
+
+            // Show the "Create Route" button
+            buttonCreateRoutes.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Used to check which collection to pull from for filtering and sorting
+    private boolean isCommunityView() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        return bottomNavigationView.getSelectedItemId() == R.id.nav_community;
     }
 
     private void initRecyclerView() {
@@ -187,24 +249,24 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
 
         // Difficulty filter that sorts routes from easy to moderate to hard to expert difficulties
         if (field.equals(Route.FIELD_DIFFICULTY)) {
-            mQuery = mFirestore.collection("routes")
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
                     .orderBy(Route.FIELD_DIFFICULTY_ORDER)
                     .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING);
         }
         // Slope filter that sorts routes from gentle to steep to very steep slopes
         else if (field.equals(Route.FIELD_SLOPE)) {
-            mQuery = mFirestore.collection("routes")
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
                     .orderBy(Route.FIELD_SLOPE_ORDER)
                     .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING);
         }
         // Rating filter sorts routes by descending order of average rating
         else if (field.equals(Route.FIELD_AVG_RATING)) {
-            mQuery = mFirestore.collection("routes").orderBy(field, Query.Direction.DESCENDING);
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes").orderBy(field, Query.Direction.DESCENDING);
         }
 
         // Location filter sorts routes by ascending order of city name strings
         else {
-            mQuery = mFirestore.collection("routes").orderBy(field, Query.Direction.ASCENDING);
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes").orderBy(field, Query.Direction.ASCENDING);
         }
 
         // Update the adapter with the new query
@@ -216,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
         // If user has not selected a filter option (button), then don't filter routes via searching
         if (selectedFilterButton == null) {
             // Default behavior if no filter button is selected
-            mQuery = mFirestore.collection("routes")
+            mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
                     .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
         }
         else {
@@ -235,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
             // if the currently selected filter button is anything other than Ratings, then filter by the search text and fix input if needed
             if (field != null  && !field.equals(Route.FIELD_AVG_RATING) && !searchText.isEmpty()) {
                 // Use case-insensitive searching with Firestore's array-contains or equality logic
-                mQuery = mFirestore.collection("routes")
+                mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
                         .whereEqualTo(field, capitalizeFirstLetter(searchText)) // Adjust string since Firebase is case-sensitive
                         .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
             }
@@ -244,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
                 // Convert search text to an integer
                 int ratingValue = Integer.parseInt(searchText);
 
-                mQuery = mFirestore.collection("routes")
+                mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
                         .whereGreaterThanOrEqualTo(field, ratingValue) // ratingValue is a lower bound
                         .whereLessThan(field, ratingValue+1)// ratingValue+1 is an upper bound
                         .orderBy(Route.FIELD_AVG_RATING, Query.Direction.DESCENDING); // sort by descending avg rating by default
@@ -299,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRo
     }
 
     private void generateRoutes() {
-        CollectionReference routes = mFirestore.collection("routes");
+        CollectionReference routes = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes");
 
         // Generate and add 2 random Route objects to Firestore
         for (int i = 0; i < 2; i++) {

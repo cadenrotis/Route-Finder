@@ -24,8 +24,8 @@ public class Route {
     private String slope;
     private int numRatings;
     private double avgRating;
-    private int difficultyOrder;
-    private int slopeOrder;  // used for sorting routes by their difficulty
+    private int difficultyOrder; // used for sorting routes by their difficulty
+    private int slopeOrder;  // used for sorting routes by their slope
 
     public Route() {}
 

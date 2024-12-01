@@ -26,9 +26,24 @@
         android:id="@+id/button_test_routes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="140dp"
-        android:backgroundTint="@color/greyLight"
+        android:layout_marginEnd="172dp"
+        android:backgroundTint="@color/light_orange"
         android:text="Test Routes"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/username_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/username_title"
+        app:layout_constraintVertical_bias="0.333" />
+
+    <!-- Create Route Button -->
+    <Button
+        android:id="@+id/button_create_routes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="@color/light_blue"
+        android:text="Create Route"
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/username_title"

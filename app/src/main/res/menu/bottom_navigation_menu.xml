@@ -1,14 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/nav_community"
         android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Community" />
+
     <item
+        android:id="@+id/nav_your_routes"
         android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Your Routes" />
+
     <item
+        android:id="@+id/nav_map"
         android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Map" />
 </menu>
