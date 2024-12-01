@@ -75,7 +75,7 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         // Create a Route object
         Route route = new Route();
-        route.setCommunityName(title);
+        route.setTitle(title);
         route.setCity(location);
         route.setSlope(slope);
         route.setDifficulty(difficulty);

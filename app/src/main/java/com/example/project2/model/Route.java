@@ -8,7 +8,7 @@ import com.google.firebase.firestore.IgnoreExtraProperties;
 @IgnoreExtraProperties
 public class Route {
 
-    public static final String FIELD_COMMUNITY_NAME = "communityName";
+    public static final String FIELD_TITLE = "title";
     public static final String FIELD_CITY = "city";
     public static final String FIELD_DIFFICULTY = "difficulty";
     public static final String FIELD_SLOPE = "slope";
@@ -17,35 +17,37 @@ public class Route {
     public static final String FIELD_DIFFICULTY_ORDER = "difficultyOrder";
     public static final String FIELD_SLOPE_ORDER = "slopeOrder";
 
-    private String communityName;
+    private String title;
     private String city;
     private String difficulty;
     private String photo;
     private String slope;
     private int numRatings;
     private double avgRating;
-    private int difficultyOrder; // used for sorting routes by their difficulty
-    private int slopeOrder;  // used for sorting routes by their slope
+    private int difficultyOrder; // Used for sorting routes by their difficulty
+    private int slopeOrder;      // Used for sorting routes by their slope
 
     public Route() {}
 
-    public Route(String communityName, String city, String difficulty, String photo,
+    public Route(String title, String city, String difficulty, String photo,
                  String slope, int numRatings, double avgRating) {
-        this.communityName = communityName;
+        this.title = title;
         this.city = city;
         this.difficulty = difficulty;
         this.photo = photo;
         this.slope = slope;
         this.numRatings = numRatings;
         this.avgRating = avgRating;
+        this.difficultyOrder = calculateDifficultyOrder(difficulty);
+        this.slopeOrder = calculateSlopeOrder(slope);
     }
 
-    public String getCommunityName() {
-        return communityName;
+    public String getTitle() {
+        return title;
     }
 
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getCity() {
@@ -113,7 +115,6 @@ public class Route {
     public void setSlopeOrder(int slopeOrder) {
         this.slopeOrder = slopeOrder;
     }
-
 
     // Helper method to calculate the difficulty order for sorting by difficulty
     public static int calculateDifficultyOrder(String difficulty) {

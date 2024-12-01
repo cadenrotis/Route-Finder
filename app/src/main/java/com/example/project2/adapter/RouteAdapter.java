@@ -66,7 +66,7 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
                     .load(route.getPhoto())
                     .into(iconView);
 
-            titleView.setText(route.getCommunityName());
+            titleView.setText(route.getTitle());
             subtitleView.setText(String.format("Location: %s\nDifficulty: %s\nSlope: %s\nRating: %.2f",
                     route.getCity(), route.getDifficulty(), route.getSlope(), route.getAvgRating()));
 

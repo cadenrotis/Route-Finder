@@ -13,15 +13,15 @@ import java.util.Random;
  */
 public class RouteUtil {
 
-    private static final String[] COMMUNITY_NAMES = {
-            "Sunny Hills",
-            "Maple Grove",
-            "Oak Ridge",
-            "Pine Valley",
-            "Cedar Point",
-            "Willow Creek",
-            "Highland Peaks",
-            "Silver Meadows"
+    private static final String[] TITLES = {
+            "Sunny Hills Adventure",
+            "Maple Grove Trail",
+            "Oak Ridge Challenge",
+            "Pine Valley Path",
+            "Cedar Point Climb",
+            "Willow Creek Walk",
+            "Highland Peaks Summit",
+            "Silver Meadows Exploration"
     };
 
     private static final String[] DIFFICULTY_LEVELS = {
@@ -57,7 +57,7 @@ public class RouteUtil {
         // Cities (assuming you have R.array.cities in strings.xml)
         String[] cities = context.getResources().getStringArray(R.array.cities);
 
-        route.setCommunityName(getRandomString(COMMUNITY_NAMES, random));
+        route.setTitle(getRandomString(TITLES, random));
         route.setCity(getRandomString(cities, random));
         route.setDifficulty(getRandomString(DIFFICULTY_LEVELS, random));
         route.setSlope(getRandomString(SLOPES, random));
