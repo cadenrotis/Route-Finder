@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.project2.util.FirebaseUtil;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * Activity for logging in and signing up users
+ */
 public class AuthenticateActivity extends AppCompatActivity {
 
     private EditText usernameField;

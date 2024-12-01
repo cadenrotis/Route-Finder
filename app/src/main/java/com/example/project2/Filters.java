@@ -8,7 +8,7 @@ import com.example.project2.util.RouteUtil;
 import com.google.firebase.firestore.Query;
 
 /**
- * Object for passing filters related to Routes.
+ * Object for passing filters related to Routes. Currently not used
  */
 public class Filters {
 

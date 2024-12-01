@@ -33,6 +33,9 @@ import com.google.firebase.firestore.Query;
 import com.example.project2.adapter.RouteAdapter;
 import com.example.project2.model.Route;
 
+/**
+ * Activity for displaying the dashboard view with a list of different routes from the database
+ */
 public class MainActivity extends AppCompatActivity implements RouteAdapter.OnRouteSelectedListener {
 
     private static final String TAG = "MainActivity";

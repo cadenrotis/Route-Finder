@@ -15,6 +15,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Activity for allowing users to create a new route
+ */
 public class CreateRouteActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateRouteActivity";
