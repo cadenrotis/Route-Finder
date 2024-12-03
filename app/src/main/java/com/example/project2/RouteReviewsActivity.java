@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.project2.adapter.RatingAdapter;
 import com.example.project2.model.Rating;
+import com.example.project2.model.Route;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -164,45 +166,95 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         }
     }
 
-    // Add a new rating to the route in Firebase
+    // Add a new rating to the route (either in one collection or both depending on user access of route) in Firebase
     @Override
     public void onRating(Rating rating) {
-        // Add the rating to the "ratings" sub-collection in the current route
-        routeRef.collection("ratings").add(rating)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d(TAG, "Rating added successfully to " + routeCollection + ": " + documentReference.getId());
-                    updateRouteAvgRating(rating.getRating());
-                    ratingAdapter.notifyDataSetChanged();
+        routeRef.get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        Route route = snapshot.toObject(Route.class);
+                        if (route != null) {
+                            String routeTitle = route.getTitle();
+
+                            // Add the rating to the current collection (either community_routes or user_routes)
+                            routeRef.collection("ratings").add(rating)
+                                    .addOnSuccessListener(docRef -> {
+                                        Log.d(TAG, "Rating added to " + routeCollection);
+                                        updateRouteAvgRating(rating.getRating(), routeCollection, routeTitle);
+                                    })
+                                    .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + routeCollection, e));
+
+                            // Determine the other collection to update
+                            String otherCollection = routeCollection.equals("community_routes") ? "user_routes" : "community_routes";
+
+                            // Check if the route exists in the other collection
+                            firestore.collection(otherCollection)
+                                    .whereEqualTo("title", routeTitle)
+                                    .get()
+                                    .addOnSuccessListener(querySnapshot -> {
+                                        if (!querySnapshot.isEmpty()) {
+                                            // If the route exists in the other collection, add the rating and update averages
+                                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                                DocumentReference otherRouteRef = document.getReference();
+
+                                                // Add the rating to the existing route
+                                                otherRouteRef.collection("ratings").add(rating)
+                                                        .addOnSuccessListener(userDocRef -> {
+                                                            Log.d(TAG, "Rating added to existing route in " + otherCollection);
+                                                            updateRouteAvgRating(rating.getRating(), otherCollection, routeTitle);
+                                                        })
+                                                        .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + otherCollection, e));
+                                            }
+                                        } else {
+                                            Log.d(TAG, "Route doesn't exist in " + otherCollection);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> Log.e(TAG, "Error querying " + otherCollection + " for title: " + routeTitle, e));
+                        }
+                    } else {
+                        Log.e(TAG, "Route does not exist in " + routeCollection);
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding rating to " + routeCollection, e);
-                });
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching route details", e));
     }
+
+
 
     // Helper method to update the route's average rating and number of ratings
-    private void updateRouteAvgRating(double newRating) {
-        firestore.runTransaction(transaction -> {
-            DocumentSnapshot snapshot = transaction.get(routeRef);
+    private void updateRouteAvgRating(double newRating, String collection, String routeTitle) {
+        firestore.collection(collection)
+                .whereEqualTo("title", routeTitle)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            DocumentReference routeRefToUpdate = document.getReference();
 
-            if (snapshot.exists()) {
-                // Get current values
-                long numRatings = snapshot.getLong("numRatings") != null ? snapshot.getLong("numRatings") : 0;
-                double avgRating = snapshot.getDouble("avgRating") != null ? snapshot.getDouble("avgRating") : 0.0;
+                            firestore.runTransaction(transaction -> {
+                                DocumentSnapshot snapshot = transaction.get(routeRefToUpdate);
 
-                // Calculate new average rating
-                long updatedNumRatings = numRatings + 1;
-                double updatedAvgRating = ((avgRating * numRatings) + newRating) / updatedNumRatings;
+                                if (snapshot.exists()) {
+                                    long numRatings = snapshot.getLong("numRatings") != null ? snapshot.getLong("numRatings") : 0;
+                                    double avgRating = snapshot.getDouble("avgRating") != null ? snapshot.getDouble("avgRating") : 0.0;
 
-                // Update the route document
-                transaction.update(routeRef, "numRatings", updatedNumRatings);
-                transaction.update(routeRef, "avgRating", updatedAvgRating);
-            }
+                                    long updatedNumRatings = numRatings + 1;
+                                    double updatedAvgRating = ((avgRating * numRatings) + newRating) / updatedNumRatings;
 
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            Log.d(TAG, "Route average rating updated successfully.");
-        }).addOnFailureListener(e -> {
-            Log.e(TAG, "Error updating route average rating.", e);
-        });
+                                    transaction.update(routeRefToUpdate, "numRatings", updatedNumRatings);
+                                    transaction.update(routeRefToUpdate, "avgRating", updatedAvgRating);
+                                }
+                                return null;
+                            }).addOnSuccessListener(aVoid -> {
+                                Log.d(TAG, "Successfully updated avgRating and numRatings for route in " + collection);
+                            }).addOnFailureListener(e -> {
+                                Log.e(TAG, "Error updating avgRating and numRatings for route in " + collection, e);
+                            });
+                        }
+                    } else {
+                        Log.e(TAG, "No route found with title: " + routeTitle + " in " + collection);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error querying route by title in " + collection, e));
     }
+
 }
