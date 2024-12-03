@@ -71,7 +71,7 @@
         app:layout_constraintTop_toBottomOf="@id/header_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/view_all_reviews"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         tools:listitem="@layout/item_route_rating"/>
 
     <!-- Empty list (pizza guy) view -->
@@ -83,7 +83,7 @@
         app:layout_constraintTop_toBottomOf="@id/header_image"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/view_all_reviews"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:orientation="vertical"
@@ -103,21 +103,6 @@
             android:textColor="@color/greyDisabled" />
 
     </LinearLayout>
-
-    <!-- View All Reviews Button -->
-    <TextView
-        android:id="@+id/view_all_reviews"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:background="@drawable/rounded_border"
-        android:padding="8dp"
-        android:text="View All Reviews"
-        android:textAppearance="?attr/textAppearanceBody2"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
