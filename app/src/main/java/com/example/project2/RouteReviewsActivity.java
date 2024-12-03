@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,12 +33,14 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
     private static final String TAG = "RouteReviewsActivity";
     public static final String KEY_ROUTE_ID = "key_route_id";
     public static final String KEY_ROUTE_COLLECTION = "key_route_collection";
+    public static final String KEY_ROUTE_TITLE = "key_route_title";
 
     // Firestore
     private FirebaseFirestore firestore;
     private Query reviewsQuery;
     private DocumentReference routeRef;
     private String routeCollection;
+    private String routeTitle;
 
     // UI Components
     private RecyclerView reviewsRecyclerView;
@@ -58,6 +61,7 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         // Get Route ID from Intent
         String routeId = getIntent().getStringExtra(KEY_ROUTE_ID);
         routeCollection = getIntent().getStringExtra(KEY_ROUTE_COLLECTION);
+        routeTitle = getIntent().getStringExtra(KEY_ROUTE_TITLE);
         if (routeId == null) {
             throw new IllegalArgumentException("Must pass extra " + KEY_ROUTE_ID);
         }
@@ -126,7 +130,12 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         if (item.getItemId() == R.id.nav_route) {
             switchToRouteView();
             return true;
-        } else {
+        }
+        else if(item.getItemId() == R.id.nav_delete) {
+            deleteRoute();
+            return true;
+        }
+        else {
             return false;
         }
     }
@@ -136,6 +145,63 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_ID, routeRef.getId());
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION, routeCollection);
         startActivity(intent);
+    }
+
+    // Delete the route from the database (and all collections if the route is public)
+    private void deleteRoute() {
+        // Check if the route exists in the "user_routes" collection, aka if the route belongs to the user
+        firestore.collection("user_routes")
+                .whereEqualTo("title", routeTitle) // Use the title to identify the route
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // Route exists in "user_routes", proceed with deletion
+                        routeRef.delete().addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Route deleted from " + routeCollection);
+                            Toast.makeText(this, "Route deleted successfully", Toast.LENGTH_SHORT).show();
+
+                            // If the route is public, delete it from the other collection
+                            String otherCollection = routeCollection.equals("community_routes") ? "user_routes" : "community_routes";
+                            deleteFromOtherCollection(otherCollection, (String) routeTitle);
+
+                            // Navigate back to the dashboard after deletion
+                            Intent intent = new Intent(RouteReviewsActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+
+                        }).addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to delete route from " + routeCollection, e);
+                            Toast.makeText(this, "Failed to delete route", Toast.LENGTH_SHORT).show();
+                        });
+                    } else {
+                        // Route does not exist in "user_routes", aka the route was not created by the user
+                        Toast.makeText(this, "Route cannot be deleted as you didn't create it", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Route does not exist in user_routes");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to check route in user_routes", e);
+                    Toast.makeText(this, "Failed to validate route existence", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // Helper function to delete route from another collection if route was posted publicly
+    private void deleteFromOtherCollection(String otherCollection, String routeTitle) {
+        firestore.collection(otherCollection)
+                .whereEqualTo("title", routeTitle) // Assuming "title" is unique per route
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            document.getReference().delete()
+                                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Route deleted from " + otherCollection))
+                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete route from " + otherCollection, e));
+                        }
+                    } else {
+                        Log.d(TAG, "No matching route found in " + otherCollection);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to query " + otherCollection, e));
     }
 
     private void loadRouteName(String routeId) {
@@ -169,53 +235,40 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
     // Add a new rating to the route (either in one collection or both depending on user access of route) in Firebase
     @Override
     public void onRating(Rating rating) {
-        routeRef.get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        Route route = snapshot.toObject(Route.class);
-                        if (route != null) {
-                            String routeTitle = route.getTitle();
+        // Add the rating to the current collection (either community_routes or user_routes)
+        routeRef.collection("ratings").add(rating)
+                .addOnSuccessListener(docRef -> {
+                    Log.d(TAG, "Rating added to " + routeCollection);
+                    updateRouteAvgRating(rating.getRating(), routeCollection, routeTitle);
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + routeCollection, e));
 
-                            // Add the rating to the current collection (either community_routes or user_routes)
-                            routeRef.collection("ratings").add(rating)
-                                    .addOnSuccessListener(docRef -> {
-                                        Log.d(TAG, "Rating added to " + routeCollection);
-                                        updateRouteAvgRating(rating.getRating(), routeCollection, routeTitle);
+        // Determine the other collection to update
+        String otherCollection = routeCollection.equals("community_routes") ? "user_routes" : "community_routes";
+
+        // Check if the route exists in the other collection
+        firestore.collection(otherCollection)
+                .whereEqualTo("title", routeTitle)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // If the route exists in the other collection, add the rating and update averages
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            DocumentReference otherRouteRef = document.getReference();
+
+                            // Add the rating to the existing route
+                            otherRouteRef.collection("ratings").add(rating)
+                                    .addOnSuccessListener(userDocRef -> {
+                                        Log.d(TAG, "Rating added to existing route in " + otherCollection);
+                                        updateRouteAvgRating(rating.getRating(), otherCollection, routeTitle);
                                     })
-                                    .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + routeCollection, e));
-
-                            // Determine the other collection to update
-                            String otherCollection = routeCollection.equals("community_routes") ? "user_routes" : "community_routes";
-
-                            // Check if the route exists in the other collection
-                            firestore.collection(otherCollection)
-                                    .whereEqualTo("title", routeTitle)
-                                    .get()
-                                    .addOnSuccessListener(querySnapshot -> {
-                                        if (!querySnapshot.isEmpty()) {
-                                            // If the route exists in the other collection, add the rating and update averages
-                                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                                DocumentReference otherRouteRef = document.getReference();
-
-                                                // Add the rating to the existing route
-                                                otherRouteRef.collection("ratings").add(rating)
-                                                        .addOnSuccessListener(userDocRef -> {
-                                                            Log.d(TAG, "Rating added to existing route in " + otherCollection);
-                                                            updateRouteAvgRating(rating.getRating(), otherCollection, routeTitle);
-                                                        })
-                                                        .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + otherCollection, e));
-                                            }
-                                        } else {
-                                            Log.d(TAG, "Route doesn't exist in " + otherCollection);
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> Log.e(TAG, "Error querying " + otherCollection + " for title: " + routeTitle, e));
+                                    .addOnFailureListener(e -> Log.e(TAG, "Error adding rating to " + otherCollection, e));
                         }
                     } else {
-                        Log.e(TAG, "Route does not exist in " + routeCollection);
+                        Log.d(TAG, "Route doesn't exist in " + otherCollection);
                     }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error fetching route details", e));
+                .addOnFailureListener(e -> Log.e(TAG, "Error querying " + otherCollection + " for title: " + routeTitle, e));
     }
 
 

@@ -89,6 +89,10 @@ public class RouteDetailActivity extends AppCompatActivity {
             switchToReviewsView();
             return true;
         }
+        else if(item.getItemId() == R.id.nav_delete) {
+            deleteRoute();
+            return true;
+        }
         else {
             return false;
         }
@@ -105,8 +109,68 @@ public class RouteDetailActivity extends AppCompatActivity {
         // Pass the collection the route is in (community_routes or user_routes)
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION, routeCollection);
 
+        // Pass the title of the route
+        intent.putExtra(RouteReviewsActivity.KEY_ROUTE_TITLE, routeTitle.getText());
+
         // Start the RouteReviewsActivity
         startActivity(intent);
+    }
+
+    // Delete the route from the database (and all collections if the route is public)
+    private void deleteRoute() {
+        // Check if the route exists in the "user_routes" collection, aka if the route belongs to the user
+        firestore.collection("user_routes")
+                .whereEqualTo("title", routeTitle.getText()) // Use the title to identify the route
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        // Route exists in "user_routes", proceed with deletion
+                        routeRef.delete().addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Route deleted from " + routeCollection);
+                            Toast.makeText(this, "Route deleted successfully", Toast.LENGTH_SHORT).show();
+
+                            // If the route is public, delete it from the other collection
+                            String otherCollection = routeCollection.equals("community_routes") ? "user_routes" : "community_routes";
+                            deleteFromOtherCollection(otherCollection, (String) routeTitle.getText());
+
+                            // Navigate back to the dashboard after deletion
+                            Intent intent = new Intent(RouteDetailActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+
+                        }).addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to delete route from " + routeCollection, e);
+                            Toast.makeText(this, "Failed to delete route", Toast.LENGTH_SHORT).show();
+                        });
+                    } else {
+                        // Route does not exist in "user_routes", aka the route was not created by the user
+                        Toast.makeText(this, "Route cannot be deleted as you didn't create it", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "Route does not exist in user_routes");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to check route in user_routes", e);
+                    Toast.makeText(this, "Failed to validate route existence", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // Helper function to delete route from another collection if route was posted publicly
+    private void deleteFromOtherCollection(String otherCollection, String routeTitle) {
+        firestore.collection(otherCollection)
+                .whereEqualTo("title", routeTitle) // Assuming "title" is unique per route
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                            document.getReference().delete()
+                                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Route deleted from " + otherCollection))
+                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete route from " + otherCollection, e));
+                        }
+                    } else {
+                        Log.d(TAG, "No matching route found in " + otherCollection);
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Failed to query " + otherCollection, e));
     }
 
     // Fetch route information from the database
