@@ -32,16 +32,24 @@ public class RouteDetailActivity extends AppCompatActivity {
     public static final String KEY_ROUTE_ID = "key_route_id";
     public static final String KEY_ROUTE_COLLECTION = "key_route_collection";
 
-    // UI Components
+    /**
+     * Variables for UI elements in the activity_route_details.xml layout.
+     */
     private TextView routeTitle, location, difficulty, slope, routeDescription;
     private RatingBar communityRatingBar;
     private ImageView imageOne, imageTwo;
 
-    // Firestore
+    /**
+     * Variables for Firestore.
+     */
     private FirebaseFirestore firestore;
     private DocumentReference routeRef;
     private String routeCollection;
 
+    /**
+     * Initializes the activity.
+     * @param savedInstanceState The saved state of the activity.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +92,11 @@ public class RouteDetailActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
+    /**
+     * Handles navigation item selection in the BottomNavigationView.
+     * @param item The selected navigation item.
+     * @return True if the selection is handled, false otherwise.
+     */
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.nav_reviews){
             switchToReviewsView();
@@ -98,7 +111,9 @@ public class RouteDetailActivity extends AppCompatActivity {
         }
     }
 
-    // Go to the route reviews page when the "Reviews" button is pressed
+    /**
+     * Go to the activity_route_reviews.xml layout when the "Reviews" button is pressed.
+     */
     private void switchToReviewsView() {
         // Create an Intent to open the RouteReviewsActivity
         Intent intent = new Intent(RouteDetailActivity.this, RouteReviewsActivity.class);
@@ -116,7 +131,9 @@ public class RouteDetailActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // Delete the route from the database (and all collections if the route is public)
+    /**
+     * Delete the route from the database (and all collections if the route is public).
+     */
     private void deleteRoute() {
         // Check if the route exists in the "user_routes" collection, aka if the route belongs to the user
         firestore.collection("user_routes")
@@ -154,10 +171,14 @@ public class RouteDetailActivity extends AppCompatActivity {
                 });
     }
 
-    // Helper function to delete route from another collection if route was posted publicly
+    /**
+     * Helper function to delete route from the another collection if route was posted publicly.
+     * @param otherCollection The other collection to delete the route from.
+     * @param routeTitle The title of the route in the collection to delete.
+     */
     private void deleteFromOtherCollection(String otherCollection, String routeTitle) {
         firestore.collection(otherCollection)
-                .whereEqualTo("title", routeTitle) // Assuming "title" is unique per route
+                .whereEqualTo("title", routeTitle)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     if (!querySnapshot.isEmpty()) {
@@ -173,7 +194,9 @@ public class RouteDetailActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to query " + otherCollection, e));
     }
 
-    // Fetch route information from the database
+    /**
+     * Fetch route information from the database
+     */
     private void loadRouteDetails() {
         routeRef.get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists()) {
@@ -192,7 +215,10 @@ public class RouteDetailActivity extends AppCompatActivity {
         });
     }
 
-    // Display route information in the UI
+    /**
+     * Display route information in the UI.
+     * @param route The route to display.
+     */
     private void displayRouteDetails(Route route) {
         // Set UI elements with route data
         routeTitle.setText(route.getTitle());

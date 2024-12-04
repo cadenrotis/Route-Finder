@@ -42,23 +42,38 @@ import java.util.ArrayList;
 public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> implements EventListener<QuerySnapshot> {
 
+    /**
+     * Variables needed to handle updates in the Firestore database
+     */
     private static final String TAG = "Firestore Adapter";
-
     private Query mQuery;
     private ListenerRegistration mRegistration;
 
+    /**
+     * ArrayList of DocumentSnapshots
+     */
     private ArrayList<DocumentSnapshot> mSnapshots = new ArrayList<>();
 
+    /**
+     * FireStoreAdapter constructor that takes a Firestore query.
+     * @param query Firestore query
+     */
     public FirestoreAdapter(Query query) {
         mQuery = query;
     }
 
+    /**
+     * Starts listening for changes to the query.
+     */
     public void startListening() {
         if (mQuery != null && mRegistration == null) {
             mRegistration = mQuery.addSnapshotListener(this);
         }
     }
 
+    /**
+     * Stops listening for changes to the query.
+     */
     public void stopListening() {
         if (mRegistration != null) {
             mRegistration.remove();
@@ -69,6 +84,9 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
 
+    /**
+     * Changes with query is being listened too
+     */
     public void setQuery(Query query) {
         // Stop listening
         stopListening();
@@ -82,7 +100,11 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         startListening();
     }
 
-    // Added method
+    /**
+     * Called when a change is detected with the query.
+     * @param documentSnapshots The value of the event. {@code null} if there was an error.
+     * @param e The error if there was error. {@code null} otherwise.
+     */
     @Override
     public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
         // Handle errors
@@ -109,10 +131,19 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         onDataChanged();
     }
 
+    /**
+     * Called to add a change to a DocumentSnapshot
+     * @param change A change to process in a document
+     */
     protected void onDocumentAdded(DocumentChange change) {
         mSnapshots.add(change.getNewIndex(), change.getDocument());
         notifyItemInserted(change.getNewIndex());
     }
+
+    /**
+     * Called to modify a DocumentSnapshot with a change
+     * @param change A change to process in a document
+     */
     protected void onDocumentModified(DocumentChange change) {
         if (change.getOldIndex() == change.getNewIndex()) {
             // Item changed but remained in same position
@@ -125,20 +156,38 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
             notifyItemMoved(change.getOldIndex(), change.getNewIndex());
         }
     }
+
+    /**
+     * Called to remove a change from a DocumentSnapshot
+     * @param change A change to process in a document
+     */
     protected void onDocumentRemoved(DocumentChange change) {
         mSnapshots.remove(change.getOldIndex());
         notifyItemRemoved(change.getOldIndex());
     }
 
+    /**
+     * Gets the number of DocumentSnapshots in the database
+     * @return The number of DocumentSnapshots
+     */
     @Override
     public int getItemCount() {
         return mSnapshots.size();
     }
 
+    /**
+     * Gets a DocumentSnapshot based on the index parameter
+     * @param index
+     * @return A DocumentSnapshot
+     */
     protected DocumentSnapshot getSnapshot(int index) {
         return mSnapshots.get(index);
     }
 
+    /**
+     * Called when there is an error
+     * @param e The exception thrown upon the error
+     */
     protected void onError(FirebaseFirestoreException e) {};
 
     protected void onDataChanged() {}

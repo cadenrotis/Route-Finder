@@ -28,10 +28,17 @@ public class FirebaseUtil {
     /** Use emulators only in debug builds **/
     private static final boolean sUseEmulators = false;
 
+    /**
+     * Initialize Firebase services and connect them to the Firebase Emulator Suite.
+     */
     private static FirebaseFirestore FIRESTORE;
     private static FirebaseAuth AUTH;
     private static AuthUI AUTH_UI;
 
+    /**
+     * Get the Firestore instance
+     * @return A Firestore instance needed to access the database
+     */
     public static FirebaseFirestore getFirestore() {
         if (FIRESTORE == null) {
             FIRESTORE = FirebaseFirestore.getInstance();
@@ -46,6 +53,10 @@ public class FirebaseUtil {
         return FIRESTORE;
     }
 
+    /**
+     * Get the Firebase Auth instance
+     * @return A Firebase Auth instance needed to authenticate users when logging in or signing up
+     */
     public static FirebaseAuth getAuth() {
         if (AUTH == null) {
             AUTH = FirebaseAuth.getInstance();
@@ -60,6 +71,10 @@ public class FirebaseUtil {
         return AUTH;
     }
 
+    /**
+     * Get the Firebase Auth UI instance.
+     * @return The Firebase Auth UI instance needed to sign in users.
+     */
     public static AuthUI getAuthUI() {
         if (AUTH_UI == null) {
             AUTH_UI = AuthUI.getInstance();

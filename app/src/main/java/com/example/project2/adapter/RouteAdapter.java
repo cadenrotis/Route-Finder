@@ -17,21 +17,39 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
 /**
- * RecyclerView adapter for a list of Routes.
+ * RecyclerView adapter that displays the route previews in the dashboard view
  */
 public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
 
+    /**
+     * Interface for handling route selection events
+     */
     public interface OnRouteSelectedListener {
         void onRouteSelected(DocumentSnapshot route);
     }
 
+    /**
+     * Listener for route selection events
+     */
     private OnRouteSelectedListener mListener;
 
+    /**
+     * Constructor for RouteAdapter that takes a Firestore Query and a listener
+     * @param query    Firestore query
+     * @param listener Listener for route selection events
+     */
     public RouteAdapter(Query query, OnRouteSelectedListener listener) {
         super(query);
         mListener = listener;
     }
 
+    /**
+     * Creates a new ViewHolder for a Route Object
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -39,17 +57,33 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
         return new ViewHolder(inflater.inflate(R.layout.item_route, parent, false));
     }
 
+    /**
+     * Binds a Route object to a ViewHolder
+     * @param holder   The ViewHolder which should be updated to represent the contents of the
+     *                 item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getSnapshot(position), mListener);
     }
 
+    /**
+     * Class called to update a ViewHolder for a Route object
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
 
+        /**
+         * UI elements defined in item_route.xml
+         */
         ImageView iconView;
         TextView titleView;
         TextView subtitleView;
 
+        /**
+         * Constructor for ViewHolder that takes a View
+         * @param itemView
+         */
         public ViewHolder(View itemView) {
             super(itemView);
             iconView = itemView.findViewById(R.id.item_icon);
@@ -57,6 +91,11 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
             subtitleView = itemView.findViewById(R.id.item_subtitle);
         }
 
+        /**
+         * Binds a Route object to a ViewHolder
+         * @param snapshot The snapshot of the route
+         * @param listener The listener for route selection events
+         */
         public void bind(final DocumentSnapshot snapshot, final OnRouteSelectedListener listener) {
             Route route = snapshot.toObject(Route.class);
             Resources resources = itemView.getResources();
@@ -66,6 +105,7 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
                     .load(route.getPhoto())
                     .into(iconView);
 
+            // Set the text for several TextViews
             titleView.setText(route.getTitle());
             subtitleView.setText(String.format("Location: %s\nDifficulty: %s\nSlope: %s\nRating: %.2f",
                     route.getCity(), route.getDifficulty(), route.getSlope(), route.getAvgRating()));

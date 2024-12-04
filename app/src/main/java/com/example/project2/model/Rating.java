@@ -8,7 +8,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.util.Date;
 
 /**
- * Model POJO for a rating.
+ * Model POJO for a rating/review for a route.
  */
 public class Rating {
 
@@ -18,8 +18,17 @@ public class Rating {
     private String text;
     private @ServerTimestamp Date timestamp;
 
+    /**
+     * Default constructor for Rating
+     */
     public Rating() {}
 
+    /**
+     * Constructor for Rating that takes a FirebaseUser, a rating, and a text
+     * @param user Firebase user, needed for getting the user's username
+     * @param rating Rating to be used for a Ratingbar
+     * @param text Contains the description that the user wrote for their review of a route
+     */
     public Rating(FirebaseUser user, double rating, String text) {
         this.userId = user.getUid();
         this.userName = user.getDisplayName();
@@ -33,18 +42,34 @@ public class Rating {
         this.text = text;
     }
 
+    /**
+     * Get the user ID for the user that set the rating/review.
+     * @return A string that consists of the user ID.
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     * Set the user ID for the user that set the rating/review.
+     * @param userId A string that consists of the user ID.
+     */
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
+    /**
+     * Get the username for the user that set the rating/review.
+     * @return A string that consists of the username.
+     */
     public String getUserName() {
         return userName;
     }
 
+    /**
+     * Set the username for the user that set the rating/review.
+     * @param userName A string that consists of the username.
+     */
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -53,29 +78,49 @@ public class Rating {
         return rating;
     }
 
+    /**
+     * Set the rating that the user set in their review of a route
+     * @param rating A double that consists of the rating
+     */
     public void setRating(double rating) {
         this.rating = rating;
     }
 
+    /**
+     * Get the description that the user wrote for their review of a route
+     * @return A string that consists of the description
+     */
     public String getText() {
         return text;
     }
 
+    /**
+     * Set the description that the user wrote for their review of a route
+     * @param text A string that consists of the description
+     */
     public void setText(String text) {
         this.text = text;
     }
 
+    /**
+     * Get the timestamp for when the rating/review was posted.
+     * @return A Date object representing the timestamp.
+     */
     public Date getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Set the timestamp for when the rating/review was posted.
+     * @param timestamp A Date object representing the timestamp.
+     */
     public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
     /**
      * Format the timestamp to a user-friendly date string.
-     * @return formatted date string or "N/A" if the timestamp is null.
+     * @return A formatted date string or "N/A" if the timestamp is null.
      */
     public String getFormattedTimestamp() {
         if (timestamp == null) {

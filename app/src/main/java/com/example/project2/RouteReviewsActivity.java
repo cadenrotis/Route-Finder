@@ -35,14 +35,9 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
     public static final String KEY_ROUTE_COLLECTION = "key_route_collection";
     public static final String KEY_ROUTE_TITLE = "key_route_title";
 
-    // Firestore
-    private FirebaseFirestore firestore;
-    private Query reviewsQuery;
-    private DocumentReference routeRef;
-    private String routeCollection;
-    private String routeTitle;
-
-    // UI Components
+    /**
+     * Variables for UI elements in the activity_route_reviews.xml layout.
+     */
     private RecyclerView reviewsRecyclerView;
     private RatingAdapter ratingAdapter;
     private TextView routeNameView;
@@ -50,6 +45,19 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
     private ImageButton backButton;
     private Button reviewButton;
 
+    /**
+     * Variables for Firestore.
+     */
+    private FirebaseFirestore firestore;
+    private Query reviewsQuery;
+    private DocumentReference routeRef;
+    private String routeCollection;
+    private String routeTitle;
+
+    /**
+     * Initializes the activity.
+     * @param savedInstanceState The saved state of the activity.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +126,7 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
             dialog.show(fragmentManager, RatingDialogFragment.TAG);
         });
 
-        // Load Route Name
+        // Load the route name for displaying in the reviews page view
         loadRouteName(routeId);
 
         // Set up BottomNavigationView
@@ -126,6 +134,11 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
+    /**
+     * Handles navigation item selection in the BottomNavigationView.
+     * @param item The selected navigation item.
+     * @return True if the selection is handled, false otherwise.
+     */
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_route) {
             switchToRouteView();
@@ -140,6 +153,9 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         }
     }
 
+    /**
+     * Go to the activity_route_details.xml layout when the "Route" button is pressed.
+     */
     private void switchToRouteView() {
         Intent intent = new Intent(RouteReviewsActivity.this, RouteDetailActivity.class);
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_ID, routeRef.getId());
@@ -147,7 +163,9 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         startActivity(intent);
     }
 
-    // Delete the route from the database (and all collections if the route is public)
+    /**
+     * Delete the route from the database (and all collections if the route is public).
+     */
     private void deleteRoute() {
         // Check if the route exists in the "user_routes" collection, aka if the route belongs to the user
         firestore.collection("user_routes")
@@ -185,7 +203,11 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
                 });
     }
 
-    // Helper function to delete route from another collection if route was posted publicly
+    /**
+     * Helper function to delete route from the another collection if route was posted publicly.
+     * @param otherCollection The other collection to delete the route from.
+     * @param routeTitle The title of the route in the collection to delete.
+     */
     private void deleteFromOtherCollection(String otherCollection, String routeTitle) {
         firestore.collection(otherCollection)
                 .whereEqualTo("title", routeTitle) // Assuming "title" is unique per route
@@ -204,6 +226,10 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
                 .addOnFailureListener(e -> Log.e(TAG, "Failed to query " + otherCollection, e));
     }
 
+    /**
+     * Fetch route name from the database and set the routeNameView UI element to that name.
+     * @param routeId The ID of the route.
+     */
     private void loadRouteName(String routeId) {
         firestore.collection(routeCollection).document(routeId)
                 .get()
@@ -216,6 +242,9 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
                 .addOnFailureListener(e -> Log.e(TAG, "Error fetching route name", e));
     }
 
+    /**
+     * Start listening for rating changes.
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -224,6 +253,9 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         }
     }
 
+    /**
+     * Stop listening for rating changes.
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -232,7 +264,10 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
         }
     }
 
-    // Add a new rating to the route (either in one collection or both depending on user access of route) in Firebase
+    /**
+     * Add a new rating to the route (either in one collection or both depending on user access of route) in Firebase
+     * @param rating The rating to add.
+     */
     @Override
     public void onRating(Rating rating) {
         // Add the rating to the current collection (either community_routes or user_routes)
@@ -271,9 +306,12 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
                 .addOnFailureListener(e -> Log.e(TAG, "Error querying " + otherCollection + " for title: " + routeTitle, e));
     }
 
-
-
-    // Helper method to update the route's average rating and number of ratings
+    /**
+     * Helper method to update the route's average rating and number of ratings
+     * @param newRating The new rating to add
+     * @param collection The other collection of the route that needs its average rating updated
+     * @param routeTitle The title of the route to update
+     */
     private void updateRouteAvgRating(double newRating, String collection, String routeTitle) {
         firestore.collection(collection)
                 .whereEqualTo("title", routeTitle)
@@ -290,11 +328,11 @@ public class RouteReviewsActivity extends AppCompatActivity implements RatingDia
                                     long numRatings = snapshot.getLong("numRatings") != null ? snapshot.getLong("numRatings") : 0;
                                     double avgRating = snapshot.getDouble("avgRating") != null ? snapshot.getDouble("avgRating") : 0.0;
 
-                                    long updatedNumRatings = numRatings + 1;
-                                    double updatedAvgRating = ((avgRating * numRatings) + newRating) / updatedNumRatings;
+                                    long updatedNumRatings = numRatings + 1; // Calculate the updated number of ratings
+                                    double updatedAvgRating = ((avgRating * numRatings) + newRating) / updatedNumRatings; // Calculate the updated average rating
 
-                                    transaction.update(routeRefToUpdate, "numRatings", updatedNumRatings);
-                                    transaction.update(routeRefToUpdate, "avgRating", updatedAvgRating);
+                                    transaction.update(routeRefToUpdate, "numRatings", updatedNumRatings); // Set the updated number of ratings
+                                    transaction.update(routeRefToUpdate, "avgRating", updatedAvgRating); // Set the updated average rating
                                 }
                                 return null;
                             }).addOnSuccessListener(aVoid -> {
