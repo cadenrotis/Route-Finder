@@ -1,7 +1,11 @@
 package com.example.project2;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.project2.model.Route;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class CreateRouteActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateRouteActivity";
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
 
     // UI Components
     private Uri routeImage;
@@ -38,6 +46,14 @@ public class CreateRouteActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_route);
+
+        // Check if the app has camera permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request the camera permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
 
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
@@ -65,7 +81,22 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void takePhoto() {
+        // Create an Intent to launch the camera
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
+        // Create a content URI for the image and assign it to the routeImage variable
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "New Route Photo");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken for the route");
+        routeImage = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+        // Pass the URI to the camera via the intent
+        if (routeImage != null) {
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, routeImage);
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        } else {
+            Toast.makeText(this, "Failed to create image file.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void handleSubmit() {
