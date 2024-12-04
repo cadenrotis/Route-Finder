@@ -1,5 +1,6 @@
 package com.example.project2;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -24,8 +25,9 @@ public class CreateRouteActivity extends AppCompatActivity {
     private static final String TAG = "CreateRouteActivity";
 
     // UI Components
+    private Uri routeImage;
     private EditText titleInput, locationInput, slopeInput, difficultyInput, descriptionInput;
-    private Button submitButton;
+    private Button takePhotoButton, submitButton;
     private ImageButton backButton;
     private RadioButton publicRadioButton, privateRadioButton;
 
@@ -41,7 +43,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
 
         // Find UI components
-        imageInput = findViewById(R.id.image_input);
+        takePhotoButton = findViewById(R.id.take_photo_btn);
         titleInput = findViewById(R.id.title_input);
         locationInput = findViewById(R.id.location_input);
         slopeInput = findViewById(R.id.slope_input);
@@ -55,8 +57,15 @@ public class CreateRouteActivity extends AppCompatActivity {
         // Set up back button
         backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
 
+        //Set up take photo button
+        takePhotoButton.setOnClickListener(v -> takePhoto());
+
         // Set up submit button
         submitButton.setOnClickListener(v -> handleSubmit());
+    }
+
+    private void takePhoto() {
+
     }
 
     private void handleSubmit() {
