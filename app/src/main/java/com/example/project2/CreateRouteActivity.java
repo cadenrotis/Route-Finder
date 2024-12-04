@@ -32,16 +32,24 @@ public class CreateRouteActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
 
-    // UI Components
+    /**
+     * Variables for elements in the activity_create_route.xml layout.
+     */
     private Uri routeImage;
     private EditText titleInput, locationInput, slopeInput, difficultyInput, descriptionInput;
     private Button takePhotoButton, submitButton;
     private ImageButton backButton;
     private RadioButton publicRadioButton, privateRadioButton;
 
-    // Firestore instance
+    /**
+     * Firebase Firestore instance
+     */
     private FirebaseFirestore firestore;
 
+    /**
+     * Initializes the activity and sets up the button click listeners.
+     * @param savedInstanceState The saved state of the activity.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +107,32 @@ public class CreateRouteActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Capitalize the first letter of each word in user's input to keep text consistent among all users.
+     * @param text The text that the user has entered into the create route form.
+     * @return Modified text where the first letter in each word is capitalized.
+     */
+    private String capitalizeFirstLetter(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        String[] words = text.split(" ");
+        StringBuilder capitalizedText = new StringBuilder();
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                capitalizedText.append(Character.toUpperCase(word.charAt(0)))
+                        .append(word.substring(1).toLowerCase())
+                        .append(" ");
+            }
+        }
+
+        return capitalizedText.toString().trim();
+    }
+
+    /**
+     * Handles the submission of the route creation form.
+     */
     private void handleSubmit() {
         // Get the current user
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -108,10 +142,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         }
 
         // Get input values
-        String title = titleInput.getText().toString().trim();
-        String location = locationInput.getText().toString().trim();
-        String slope = slopeInput.getText().toString().trim();
-        String difficulty = difficultyInput.getText().toString().trim();
+        String title = capitalizeFirstLetter(titleInput.getText().toString().trim());
+        String location = capitalizeFirstLetter(locationInput.getText().toString().trim());
+        String slope = capitalizeFirstLetter(slopeInput.getText().toString().trim());
+        String difficulty = capitalizeFirstLetter(difficultyInput.getText().toString().trim());
         String description = descriptionInput.getText().toString().trim();
         String userId = currentUser.getUid();
 
@@ -128,9 +162,9 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setSlope(slope);
         route.setDifficulty(difficulty);
         route.setDescription(description);
-        route.setNumRatings(0); // Default value
-        route.setAvgRating(0.0); // Default value
-        route.setPhoto(null); // Placeholder for photo
+        route.setNumRatings(0);
+        route.setAvgRating(0.0);
+        route.setPhoto(null);
 
         // Check the selected access type via the radio button checked by the user
         if (publicRadioButton.isChecked()) {
@@ -145,10 +179,15 @@ public class CreateRouteActivity extends AppCompatActivity {
             return;
         }
 
-        // Finish the activity
+        // Finish the activity to go back to the dashboard view
         finish();
     }
 
+    /**
+     * Saves a route to the correct collection in the Firestore database.
+     * @param collection The collection to save the route to.
+     * @param route The route to save.
+     */
     private void saveRouteToFirestore(String collection, Route route) {
         firestore.collection(collection)
                 .add(route)

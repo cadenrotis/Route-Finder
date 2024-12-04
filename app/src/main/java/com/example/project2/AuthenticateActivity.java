@@ -15,10 +15,13 @@ import com.example.project2.util.FirebaseUtil;
 import com.google.firebase.auth.FirebaseUser;
 
 /**
- * Activity for logging in and signing up users
+ * Activity for authenticating users when logging in or signing up.
  */
 public class AuthenticateActivity extends AppCompatActivity {
 
+    /**
+     * Variables for the elements in the activity_login.xml layout.
+     */
     private EditText usernameField;
     private EditText passwordField;
     private Button loginButton;
@@ -26,6 +29,10 @@ public class AuthenticateActivity extends AppCompatActivity {
     private RadioButton radioSignup;
     private TextView loginLabel;
 
+    /**
+     * Initializes the activity and sets up the button click listeners.
+     * @param savedInstanceState The saved state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,22 +60,32 @@ public class AuthenticateActivity extends AppCompatActivity {
         loginButton.setOnClickListener(v -> handleAuth());
     }
 
+    /**
+     * Switches the UI to the login state when the login radio button is clicked.
+     */
     private void switchToLogin() {
         radioSignup.setChecked(false);
         loginLabel.setText("Login");
         loginButton.setText("Login");
     }
 
+    /**
+     * Switches the UI to the signup state when the signup radio button is clicked.
+     */
     private void switchToSignup() {
         radioLogin.setChecked(false);
         loginLabel.setText("Sign Up");
         loginButton.setText("Sign Up");
     }
 
+    /**
+     * Handles the authentication process based on the selected radio button.
+     */
     private void handleAuth() {
         String email = usernameField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
+        // Check if email and password are empty
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Please enter both email and password", Toast.LENGTH_SHORT).show();
             return;
@@ -81,6 +98,11 @@ public class AuthenticateActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Logs in the user with the provided email and password.
+     * @param email The user's email.
+     * @param password The user's password.
+     */
     private void loginUser(String email, String password) {
         FirebaseUtil.getAuth().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -92,6 +114,11 @@ public class AuthenticateActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Signs up the user with the provided email and password.
+     * @param email The user's email.
+     * @param password The user's password.
+     */
     private void signupUser(String email, String password) {
         FirebaseUtil.getAuth().createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
@@ -103,6 +130,9 @@ public class AuthenticateActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Navigates to the dashboard activity (the activity_dashboard.xml layout).
+     */
     private void navigateToDashboard() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
