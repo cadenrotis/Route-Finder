@@ -41,6 +41,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         firestore = FirebaseFirestore.getInstance();
 
         // Find UI components
+        imageInput = findViewById(R.id.image_input);
         titleInput = findViewById(R.id.title_input);
         locationInput = findViewById(R.id.location_input);
         slopeInput = findViewById(R.id.slope_input);
