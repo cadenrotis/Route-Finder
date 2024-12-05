@@ -6,7 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.ArcShape;
 import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.PathShape;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,6 +20,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.compose.ui.graphics.vector.PathNode;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,6 +41,19 @@ public class ImageEditActivity extends AppCompatActivity {
     private int heightOffset = 0;
     private int widthOffset = 0;
     private int circleColor = R.color.solid_blue;
+
+    private int previousXLH = -1;
+    private int previousYLH = -1;
+    private int previousXRH = -1;
+    private int previousYRH = -1;
+    private int previousXLF = -1;
+    private int previousYLF = -1;
+    private int previousXRF = -1;
+    private int previousYRF = -1;
+
+    private final int CIRCLE_RADIUS = 50;
+    private final int CIRCLE_STROKE_WIDTH = 10;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,16 +104,47 @@ public class ImageEditActivity extends AppCompatActivity {
         circle.getPaint().setColor(ContextCompat.getColor(this.getApplicationContext(), circleColor));
         if (heightOffset < 0){widthOffset = 0;} //heightOffset is < 0 when the image aspect ratio(H:W) is greater than the imageView's and therefore not necessary.
         if (widthOffset < 0){widthOffset = 0;} //widthOffset is < 0 when the image aspect ratio(H:W) is less than the imageView's and therefore not necessary.
+        int circleLeft = (x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicWidth() / 2;
+        int circleRight = (x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicWidth() / 2;
+        int circleTop = (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicHeight() / 2;
+        int circleBottom = (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicHeight() / 2;
         //sets the area in which the circle will be drawn by translating the touch coordinates into image coordinates.
-        circle.setBounds((x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicWidth() / 2,
-                (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicHeight() / 2,
-                (x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicWidth() / 2,
-                (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicHeight() / 2);
+        circle.setBounds(circleLeft, circleTop, circleRight, circleBottom);
         //makes the circle a line instead of filled and sets line width.
         circle.getPaint().setStyle(Paint.Style.STROKE);
-        circle.getPaint().setStrokeWidth(10); //TODO: Determine appropriate line width for phone image resolution.
+        circle.getPaint().setStrokeWidth(CIRCLE_STROKE_WIDTH); //TODO: Determine appropriate line width for phone image resolution.
         //draw the circle onto the image.
         circle.draw(canvas);
+
+        //draws a line between the previous circle sharing the same color and then update the previous circle coordinates
+        if (circleColor == R.color.solid_blue){
+            if(previousXLH >= 0) {
+                canvas.drawLines(drawLine(previousXLH, previousYLH, circleLeft + circle.getIntrinsicWidth() / 2, circleTop + circle.getIntrinsicHeight() / 2), circle.getPaint());
+            }
+            previousXLH = circleLeft + circle.getIntrinsicWidth() / 2;
+            previousYLH = circleTop + circle.getIntrinsicHeight() / 2;
+        }
+        else if (circleColor == R.color.solid_green){
+            if(previousXRH > 0) {
+                canvas.drawLines(drawLine(previousXRH, previousYRH, circleLeft + circle.getIntrinsicWidth() / 2, circleTop + circle.getIntrinsicHeight() / 2), circle.getPaint());
+            }
+            previousXRH = circleLeft + circle.getIntrinsicWidth() / 2;
+            previousYRH = circleTop + circle.getIntrinsicHeight() / 2;
+        }
+        else if (circleColor == R.color.solid_orange){
+            if(previousXLF > 0) {
+                canvas.drawLines(drawLine(previousXLF, previousYLF, circleLeft + circle.getIntrinsicWidth() / 2, circleTop + circle.getIntrinsicHeight() / 2), circle.getPaint());
+            }
+            previousXLF = circleLeft + circle.getIntrinsicWidth() / 2;
+            previousYLF = circleTop + circle.getIntrinsicHeight() / 2;
+        }
+        else {
+            if(previousXRF > 0) {
+                canvas.drawLines(drawLine(previousXRF, previousYRF, circleLeft + circle.getIntrinsicWidth() / 2, circleTop + circle.getIntrinsicHeight() / 2), circle.getPaint());
+            }
+            previousXRF = circleLeft + circle.getIntrinsicWidth() / 2;
+            previousYRF = circleTop + circle.getIntrinsicHeight() / 2;
+        }
         //update the UI.
         image.setImageBitmap(bmp);
     }
@@ -125,5 +173,24 @@ public class ImageEditActivity extends AppCompatActivity {
         }
         item.setChecked(true);
         return false;
+    }
+
+    /**
+     * draws a line from the edge of one circle to another. subtracts the circle radius from both ends.
+     * @param prevX x coordinate of the center of the previous circle
+     * @param prevY y coordinate of the center of the previous circle
+     * @param newX x coordinate of the center of the new circle
+     * @param newY y coordinate of the center of the new circle
+     * @return float[] containing the coordinates of the start and end of the line
+     */
+    private float[] drawLine(int prevX, int prevY, int newX, int newY){
+        double deltaX = CIRCLE_RADIUS * Math.cos(Math.atan((newY - prevY) / (double)(newX - prevX)));
+        double deltaY = CIRCLE_RADIUS * Math.sin(Math.atan((newY - prevY) / (double)(newX - prevX)));
+        if ((double)(newX - prevX) < 0){
+            deltaX *= -1;
+            deltaY *= -1;
+        }
+        float[] lineCords = {(float)(prevX + deltaX), (float)(prevY + deltaY), (float)(newX - deltaX), (float)(newY - deltaY)};
+        return lineCords;
     }
 }
