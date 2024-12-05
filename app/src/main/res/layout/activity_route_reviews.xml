@@ -104,21 +104,6 @@
 
     </LinearLayout>
 
-    <!-- View All Reviews Button -->
-    <TextView
-        android:id="@+id/view_all_reviews"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:background="@drawable/rounded_border"
-        android:padding="8dp"
-        android:text="View All Reviews"
-        android:textAppearance="?attr/textAppearanceBody2"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
