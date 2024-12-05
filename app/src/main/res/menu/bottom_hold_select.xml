@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/leftHand"
+        android:icon="?android:attr/listChoiceIndicatorSingle"
+        android:iconTint="@color/purple_500"
+        android:title="Left Hand" />
+
+    <item
+        android:id="@+id/rightHand"
+        android:icon="?android:attr/listChoiceIndicatorSingle"
+        android:iconTint="@color/purple_200"
+        android:title="Right Hand" />
+    <item
+        android:id="@+id/leftFoot"
+        android:icon="?android:attr/listChoiceIndicatorSingle"
+        android:iconTint="@color/purple_200"
+        android:title="Left Foot" />
+
+    <item
+        android:id="@+id/rightFoot"
+        android:icon="?android:attr/listChoiceIndicatorSingle"
+        android:iconTint="@color/purple_500"
+        android:title="Right Foot" />
+</menu>
