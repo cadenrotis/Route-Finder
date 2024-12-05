@@ -10,9 +10,4 @@
         android:id="@+id/nav_your_routes"
         android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Your Routes" />
-
-    <item
-        android:id="@+id/nav_map"
-        android:icon="@drawable/mrb_star_border_icon_black_36dp"
-        android:title="Map" />
 </menu>

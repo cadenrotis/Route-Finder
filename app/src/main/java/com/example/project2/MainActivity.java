@@ -42,24 +42,34 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG = "MainActivity";
     private static final int LIMIT = 50;
 
+    /**
+     * Variables for the recycler view
+     */
     private RecyclerView mRoutesRecycler;
     private ViewGroup mEmptyView;
 
+    /**
+     * Variables for Firestore
+     */
     private FirebaseFirestore mFirestore;
     private Query mQuery;
     private RouteAdapter mAdapter;
 
-    // Buttons and search bar
+    /**
+     * Variables for elements in the activity_dashboard.xml layout.
+     */
     private Button filterRatingButton;
     private Button filterLocationButton;
     private Button filterDifficultyButton;
     private Button filterSlopeButton;
     private EditText searchLabel;
-
     private Button buttonCreateRoutes;
-
     private Button selectedFilterButton; // To track the selected filter button
 
+    /**
+     * Initializes the activity.
+     * @param savedInstanceState The saved state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -124,6 +134,11 @@ public class MainActivity extends AppCompatActivity implements
         bottomNavigationView.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
+    /**
+     * Handles navigation item selection in the BottomNavigationView.
+     * @param item The selected navigation item.
+     * @return True if the selection is handled, false otherwise.
+     */
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.nav_community){
             switchToCommunityView();
@@ -138,6 +153,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Switches to the community view, where routes are displayed from the community_routes collection.
+     */
     private void switchToCommunityView() {
         mQuery = mFirestore.collection("community_routes")
                 .orderBy("avgRating", Query.Direction.DESCENDING)
@@ -148,6 +166,9 @@ public class MainActivity extends AppCompatActivity implements
         buttonCreateRoutes.setVisibility(View.GONE);
     }
 
+    /**
+     * Switches to the user's routes view, where routes are displayed from the user_routes collection.
+     */
     private void switchToYourRoutesView() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -161,12 +182,18 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // Used to check which collection to pull from for filtering and sorting
+    /**
+     * Checks if the current view is the community view.
+     * @return True if the current view is the community view, false otherwise.
+     */
     private boolean isCommunityView() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         return bottomNavigationView.getSelectedItemId() == R.id.nav_community;
     }
 
+    /**
+     * Initializes the RecyclerView for displaying routes.
+     */
     private void initRecyclerView() {
         if (mQuery == null) {
             Log.w(TAG, "No query, not initializing RecyclerView");
@@ -199,7 +226,9 @@ public class MainActivity extends AppCompatActivity implements
         mRoutesRecycler.setAdapter(mAdapter);
     }
 
-    // Set onClickListeners for each filter button, and determines the current filter
+    /**
+     * Set onClickListeners for each filter button, and determines the current filter
+     */
     private void setUpFilters() {
         filterRatingButton.setOnClickListener(v -> {
             applyFilter(Route.FIELD_AVG_RATING);
@@ -219,7 +248,10 @@ public class MainActivity extends AppCompatActivity implements
         });
     }
 
-    // Sets the currently selected filter button by changing backgroundTint
+    /**
+     * Sets the currently selected filter button by changing backgroundTint
+     * @param button The button currently selected by the user
+     */
     private void setSelectedFilter(Button button) {
         if (selectedFilterButton != null) {
             selectedFilterButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.greyLight));
@@ -228,28 +260,29 @@ public class MainActivity extends AppCompatActivity implements
         selectedFilterButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.purple_200));
     }
 
-    // Format the search bar and sort routes when the user types in the search bar
+    /**
+     * Format the search bar and filter routes based on the filter selected when the user types in the search bar
+     */
     private void setUpSearch() {
         searchLabel.addTextChangedListener(new TextWatcher() {
-            // don't think this is needed actually
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                applySearch(s.toString());
+                applySearch(s.toString()); // Processing what the user has typed into the search bar
             }
 
-            // don't think this is needed actually
             @Override
             public void afterTextChanged(Editable s) {}
         });
     }
 
-    // Applying a filter to all routes in the database
+    /**
+     * Applies a filter to the routes in the database based on the currently selected filter button.
+     * @param field The field to filter by (rating, difficulty, location, or slope)
+     */
     private void applyFilter(String field) {
-        String searchText = searchLabel.getText().toString().trim();
-
         // Difficulty filter that sorts routes from easy to moderate to hard to expert difficulties
         if (field.equals(Route.FIELD_DIFFICULTY)) {
             mQuery = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes")
@@ -276,7 +309,10 @@ public class MainActivity extends AppCompatActivity implements
         mAdapter.setQuery(mQuery);
     }
 
-    // Filter routes based on user's input into the search bar
+    /**
+     * Filter routes based on user's input into the search bar
+     * @param searchText The user's input into the search bar
+     */
     private void applySearch(String searchText) {
         // If user has not selected a filter option (button), then don't filter routes via searching
         if (selectedFilterButton == null) {
@@ -322,8 +358,11 @@ public class MainActivity extends AppCompatActivity implements
         mAdapter.setQuery(mQuery);
     }
 
-
-    // Capitalize the first letter of each word in user's search input since Firebase is case-sensitive.
+    /**
+     * Capitalize the first letter of each word in user's search input since Firebase is case-sensitive.
+     * @param text The text that the user has entered into the search bar.
+     * @return Modified text where the first letter in each word is capitalized.
+     */
     private String capitalizeFirstLetter(String text) {
         if (text == null || text.isEmpty()) {
             return text;
@@ -342,6 +381,9 @@ public class MainActivity extends AppCompatActivity implements
         return capitalizedText.toString().trim();
     }
 
+    /**
+     * Starts listening to Firestore updates.
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -352,6 +394,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Stops listening to Firestore updates.
+     */
     @Override
     protected void onStop() {
         super.onStop();
@@ -362,7 +407,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // Generate 2 random routes and add them to Firestore when "Test Routes" button is pressed
+    /**
+     * Generates 2 random routes and adds them to Firestore when "Test Routes" button is pressed.
+     */
     private void generateRoutes() {
         CollectionReference routes = mFirestore.collection(isCommunityView() ? "community_routes" : "user_routes");
 
@@ -373,16 +420,14 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // When a route is clicked, user will be redirected to a view that contains more information about the route
+    /**
+     * When a route is clicked, user will be redirected to a view that contains more information about the route
+     * @param route The route that was clicked
+     */
     @Override
     public void onRouteSelected(DocumentSnapshot route) {
-        // Go to the details page for the selected route
         Intent intent = new Intent(this, RouteDetailActivity.class);
-
-        // Give the id of the route as a parameter
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_ID, route.getId());
-
-        // Give the collection that the route is in as another parameter
         intent.putExtra(RouteDetailActivity.KEY_ROUTE_COLLECTION,
                 isCommunityView() ? "community_routes" : "user_routes");
 

@@ -11,4 +11,9 @@
         android:id="@+id/nav_reviews"
         android:icon="@drawable/mrb_star_border_icon_black_36dp"
         android:title="Reviews" />
+
+    <item
+        android:id="@+id/nav_delete"
+        android:icon="@drawable/mrb_star_border_icon_black_36dp"
+        android:title="Delete" />
 </menu>

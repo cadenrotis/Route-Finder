@@ -8,10 +8,13 @@ import com.example.project2.model.Route;
 import java.util.Random;
 
 /**
- * Utilities for generating random Route objects for testing.
+ * Class used for generating random Route objects for testing.
  */
 public class RouteUtil {
 
+    /**
+     * String array of random route titles.
+     */
     private static final String[] TITLES = {
             "Sunny Hills Adventure",
             "Maple Grove Trail",
@@ -23,6 +26,9 @@ public class RouteUtil {
             "Silver Meadows Exploration"
     };
 
+    /**
+     * String array of difficulty levels.
+     */
     private static final String[] DIFFICULTY_LEVELS = {
             "Easy",
             "Moderate",
@@ -30,6 +36,9 @@ public class RouteUtil {
             "Expert"
     };
 
+    /**
+     * String array of slopes.
+     */
     private static final String[] SLOPES = {
             "Gentle",
             "Inclined",
@@ -37,6 +46,9 @@ public class RouteUtil {
             "Very Steep"
     };
 
+    /**
+     * String array of route descriptions.
+     */
     private static final String[] DESCRIPTIONS = {
             "A beautiful scenic route with gentle inclines.",
             "Perfect for intermediate climbers looking for a challenge.",
@@ -49,7 +61,7 @@ public class RouteUtil {
     };
 
     /**
-     * Array of drawable resource IDs for rock climbing route pictures.
+     * String array of drawable resource IDs for rock climbing route pictures.
      */
     private static final int[] ROUTE_IMAGES = {
             R.drawable.route_1,
@@ -58,13 +70,14 @@ public class RouteUtil {
     };
 
     /**
-     * Create a random Route POJO.
+     * Get a random Route object.
+     * @param context The application context.
+     * @return A random Route object.
      */
     public static Route getRandom(Context context) {
         Route route = new Route();
         Random random = new Random();
 
-        // Cities (assuming you have R.array.cities in strings.xml)
         String[] cities = context.getResources().getStringArray(R.array.cities);
 
         route.setTitle(getRandomString(TITLES, random));
@@ -80,7 +93,10 @@ public class RouteUtil {
     }
 
     /**
-     * Get a random image from local drawables.
+     * Get a random image from the ROUTE_IMAGES array.
+     * @param random A Random object passed down from getRandom().
+     * @param context The application context passed down from getRandom().
+     * @return A random image for a random Route object to use.
      */
     private static String getRandomImage(Random random, Context context) {
         int index = random.nextInt(ROUTE_IMAGES.length);
@@ -91,7 +107,10 @@ public class RouteUtil {
     }
 
     /**
-     * Get a random string from an array.
+     * Get a random string from the array parameter.
+     * @param array An array of strings for either titles, difficulties, slopes, or descriptions.
+     * @param random A Random object passed down from getRandom().
+     * @return A random string from the array parameter to be used by the random Route created.
      */
     private static String getRandomString(String[] array, Random random) {
         int ind = random.nextInt(array.length);
@@ -99,7 +118,9 @@ public class RouteUtil {
     }
 
     /**
-     * Get a random rating between 1.0 and 5.0.
+     * Get a random rating for a Route between 1.0-5.0
+     * @param random A Random object passed down from getRandom().
+     * @return A random rating for the random Route created.
      */
     private static double getRandomRating(Random random) {
         double min = 1.0;
