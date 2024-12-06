@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * Activity for allowing users to create a new route
@@ -248,7 +249,25 @@ public class CreateRouteActivity extends AppCompatActivity {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
+
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
+    /**
+     * Converts a Bitmap to a Base64 encoded String.
+     *
+     * @param bitmap The Bitmap to encode.
+     * @return The Base64 encoded String.
+     */
+    private byte[] bitmapToBytes(Bitmap bitmap) {
+        // Ensure safe configuration
+        bitmap = convertToSoftwareBitmap(bitmap);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        return byteArray;
     }
 
     /**
@@ -286,10 +305,17 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setDescription(description);
         route.setNumRatings(0);
         route.setAvgRating(0.0);
-        String imageString = bitmapToString(routeImageBitmap);
+
+        String imageString = bitmapToString(routeImageBitmap.copy(Bitmap.Config.ARGB_8888, true));
+        byte[] photoByteArray = bitmapToBytes(routeImageBitmap);
+
         Log.d("imageString", "String Length: " + imageString.length());
-        Log.d("imageString:", imageString);
-        route.setPhoto(imageString);
+        //Log.d("imageString:", imageString);
+        //route.setPhoto(imageString);
+
+        Log.d("photoByteArray:", Arrays.toString(photoByteArray));
+        route.setByteArrayPhoto(photoByteArray);
+
 
         // Check the selected access type via the radio button checked by the user
         if (publicRadioButton.isChecked()) {

@@ -234,12 +234,12 @@ public class RouteDetailActivity extends AppCompatActivity {
         communityRatingBar.setRating((float) route.getAvgRating());
 
         // Load images
-        Glide.with(this)
-                .load(route.getPhotoAsBitmap())
-                .into(imageOne);
-
-        Glide.with(this)
-                .load(route.getPhotoAsBitmap())
-                .into(imageTwo);
+//        Glide.with(this)
+//                .load(route.getPhotoAsBitmap())
+//                .into(imageOne);
+//
+//        Glide.with(this)
+//                .load(route.getPhotoAsBitmap())
+//                .into(imageTwo);
     }
 }

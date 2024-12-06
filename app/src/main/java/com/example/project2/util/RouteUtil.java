@@ -85,7 +85,7 @@ public class RouteUtil {
         route.setDifficulty(getRandomString(DIFFICULTY_LEVELS, random));
         route.setSlope(getRandomString(SLOPES, random));
         route.setDescription(getRandomString(DESCRIPTIONS, random));
-        route.setPhoto(getRandomImage(random, context));
+        //route.setPhoto(getRandomImage(random, context));
         route.setAvgRating(getRandomRating(random));
         route.setNumRatings(random.nextInt(50)); // Up to 50 ratings
 
