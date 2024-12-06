@@ -6,6 +6,8 @@ import android.util.Base64;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.util.List;
+
 /**
  * Route POJO.
  */
@@ -32,7 +34,6 @@ public class Route {
     private String city;
     private String difficulty;
     private String photo;
-    private byte[] photoByteArray;
     private String slope;
     private String description;
     private int numRatings;
@@ -56,12 +57,12 @@ public class Route {
      * @param numRatings The number of ratings for the route
      * @param avgRating The average rating of the route
      */
-    public Route(String title, String city, String difficulty, String photo, byte[] photoByteArray,
+    public Route(String title, String city, String difficulty, String photo,
                  String slope, String description, int numRatings, double avgRating) {
         this.title = title;
         this.city = city;
         this.difficulty = difficulty;
-        this.photoByteArray = photoByteArray;
+        this.photo = photo;
         this.slope = slope;
         this.description = description;
         this.numRatings = numRatings;
@@ -126,24 +127,16 @@ public class Route {
     public String getPhoto() {
         return photo;
     }
-    /**
-     *
-     * Get a route's photo
-     * @return A string that consists of a URL to a route's photo
-     */
-    public byte[] getPhotoByteArray() {
-        return photoByteArray;
-    }
 
     /**
      * Converts a Base64 encoded String (photo)back to a Bitmap.
      *
      * @return The photo as a decoded Bitmap.
      */
-//    public Bitmap getPhotoAsBitmap() {
-//        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
-//        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-//    }
+    public Bitmap getPhotoAsBitmap() {
+        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    }
 
     /**
      * Set a route's photo
@@ -151,14 +144,6 @@ public class Route {
      */
     public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    /**
-     * Set a route's photo
-     * @param photoByteArray A string that consists of a URL to a route's photo
-     */
-    public void setByteArrayPhoto(byte[] photoByteArray) {
-        this.photoByteArray = photoByteArray;
     }
 
     /**

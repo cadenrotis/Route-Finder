@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.example.project2.R;
 import com.example.project2.model.Route;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 /**
@@ -32,6 +33,13 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
      * Listener for route selection events
      */
     private OnRouteSelectedListener mListener;
+
+    /**
+     * Variables for Firestore
+     */
+    private FirebaseFirestore mFirestore;
+    private Query mQuery;
+    private RouteAdapter mAdapter;
 
     /**
      * Constructor for RouteAdapter that takes a Firestore Query and a listener
@@ -99,8 +107,8 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
         public void bind(final DocumentSnapshot snapshot, final OnRouteSelectedListener listener) {
             Route route = snapshot.toObject(Route.class);
             Resources resources = itemView.getResources();
+            //TODO
 
-            // Load image
             Glide.with(iconView.getContext())
                     .load(route.getPhoto())
                     .into(iconView);

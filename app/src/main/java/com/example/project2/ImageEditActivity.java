@@ -92,9 +92,14 @@ public class ImageEditActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //TODO: add upload code
-                Intent intent = new Intent(ImageEditActivity.this, CreateRouteActivity.class);
-                intent.putExtra("editedPhoto", getImageUri(getApplicationContext(), bmp));
-                startActivity(intent);
+//                Intent intent = new Intent(ImageEditActivity.this, CreateRouteActivity.class);
+//                intent.putExtra("editedPhoto", getImageUri(getApplicationContext(), bmp));
+//                startActivity(intent);
+
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("editedPhoto", getImageUri(getApplicationContext(), bmp));
+                setResult(RESULT_OK, resultIntent);
+                finish();
             }
         });
 

@@ -37,6 +37,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Activity for allowing users to create a new route
@@ -101,7 +103,27 @@ public class CreateRouteActivity extends AppCompatActivity {
         publicRadioButton = findViewById(R.id.radio_public);
         privateRadioButton = findViewById(R.id.radio_private);
 
-        // Initialize the launcher
+        ActivityResultLauncher<Intent> editImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri editedPhotoUri = (Uri) result.getData().getExtras().get("editedImage");
+                        if (editedPhotoUri != null) {
+                            Log.d("EditImageReturn", "Edited Photo URI: " + editedPhotoUri);
+                            routeImageBitmap = uriToBitmap(editedPhotoUri);
+                            imagePreview.setImageBitmap(routeImageBitmap);
+                            Log.d("EditImageReturn", "Photo captured, edited, and loaded successfully.");
+
+                            String temp = bitmapToString(routeImageBitmap);
+                            Log.d("Editted imageString:", temp);
+                        } else {
+                            Log.e("EditImageReturn", "Edited photo URI is null.");
+                        }
+                    }
+                }
+        );
+
+        // Initialize the launcher for camera
         takePhotoLauncher = registerForActivityResult(
                 new ActivityResultContracts.TakePicture(),
                 result -> {
@@ -112,7 +134,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 routeImageBitmap = uriToBitmap(routeImageUri);
                                 Intent intent = new Intent(CreateRouteActivity.this, ImageEditActivity.class);
                                 intent.putExtra("photo", routeImageUri);
-                                startActivity(intent);
+                                editImageLauncher.launch(intent);
 
                                 Log.d("BitmapDetails", "Photo captured and loaded successfully.");
                             } else {
@@ -126,12 +148,13 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 }
         );
-        if (getIntent().hasExtra("editedPhoto")) {
-            routeImageBitmap = uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto"));
-            Glide.with(this)
-                    .load(routeImageBitmap)
-                    .into(imagePreview);
-        }
+
+//        if (getIntent().hasExtra("editedPhoto")) {
+//            routeImageBitmap = uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto"));
+//            Glide.with(this)
+//                    .load(routeImageBitmap)
+//                    .into(imagePreview);
+//        }
 
 
         // Set up back button
@@ -254,23 +277,6 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     /**
-     * Converts a Bitmap to a Base64 encoded String.
-     *
-     * @param bitmap The Bitmap to encode.
-     * @return The Base64 encoded String.
-     */
-    private byte[] bitmapToBytes(Bitmap bitmap) {
-        // Ensure safe configuration
-        bitmap = convertToSoftwareBitmap(bitmap);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-        return byteArray;
-    }
-
-    /**
      * Handles the submission of the route creation form.
      */
     private void handleSubmit() {
@@ -306,16 +312,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setNumRatings(0);
         route.setAvgRating(0.0);
 
-        String imageString = bitmapToString(routeImageBitmap.copy(Bitmap.Config.ARGB_8888, true));
-        byte[] photoByteArray = bitmapToBytes(routeImageBitmap);
-
+        String imageString = bitmapToString(routeImageBitmap);
         Log.d("imageString", "String Length: " + imageString.length());
-        //Log.d("imageString:", imageString);
-        //route.setPhoto(imageString);
-
-        Log.d("photoByteArray:", Arrays.toString(photoByteArray));
-        route.setByteArrayPhoto(photoByteArray);
-
+        Log.d("imageString:", imageString);
+        route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
         if (publicRadioButton.isChecked()) {
