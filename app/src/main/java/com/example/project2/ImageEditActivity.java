@@ -101,6 +101,12 @@ public class ImageEditActivity extends AppCompatActivity {
         nav.setOnItemSelectedListener(this::onNavigationItemSelected);
     }
 
+    @Override
+    public void onStop(){
+        super.onStop();
+        finish();
+    }
+
     /**
      * This method is draws a circle at the given touch coordinates on the cnavas.
      * @param x x touch coordinate
