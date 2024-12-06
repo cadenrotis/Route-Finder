@@ -22,19 +22,19 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Test Routes Button -->
-    <Button
-        android:id="@+id/button_test_routes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="172dp"
-        android:backgroundTint="@color/light_orange"
-        android:text="Test Routes"
-        android:textColor="@android:color/black"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/username_title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/username_title"
-        app:layout_constraintVertical_bias="0.333" />
+<!--    <Button-->
+<!--        android:id="@+id/button_test_routes"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="172dp"-->
+<!--        android:backgroundTint="@color/light_orange"-->
+<!--        android:text="Test Routes"-->
+<!--        android:textColor="@android:color/black"-->
+<!--        android:textSize="14sp"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/username_title"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@id/username_title"-->
+<!--        app:layout_constraintVertical_bias="0.333" />-->
 
     <!-- Create Route Button -->
     <Button
@@ -48,55 +48,69 @@
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/username_title"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/username_title"
         app:layout_constraintTop_toTopOf="@id/username_title"
         app:layout_constraintVertical_bias="0.333" />
 
     <!-- Filters -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/filters"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@id/username_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Rating Button -->
         <Button
             android:id="@+id/filter_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/greyLight"
             android:text="Rating"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/filter_location"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread" />
 
+        <!-- Location Button -->
         <Button
             android:id="@+id/filter_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:backgroundTint="@color/greyLight"
             android:text="Location"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/filter_rating"
+            app:layout_constraintEnd_toStartOf="@id/filter_difficulty"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Difficulty Button -->
         <Button
             android:id="@+id/filter_difficulty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:backgroundTint="@color/greyLight"
             android:text="Difficulty"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/filter_location"
+            app:layout_constraintEnd_toStartOf="@id/filter_slope"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Slope Button -->
         <Button
             android:id="@+id/filter_slope"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:backgroundTint="@color/greyLight"
             android:text="Slope"
-            android:textColor="@color/black" />
-    </LinearLayout>
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@id/filter_difficulty"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Search -->
     <EditText

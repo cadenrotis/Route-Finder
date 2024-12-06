@@ -116,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements
         setUpSearch();
 
         // Set up Test Routes button
-        Button testRoutesButton = findViewById(R.id.button_test_routes);
-        testRoutesButton.setOnClickListener(v -> generateRoutes());
+//        Button testRoutesButton = findViewById(R.id.button_test_routes);
+//        testRoutesButton.setOnClickListener(v -> generateRoutes());
 
         // When "Create Route" button is pressed, go to view that allows user to create a route
         buttonCreateRoutes = findViewById(R.id.button_create_routes);
