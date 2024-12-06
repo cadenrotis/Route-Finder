@@ -112,7 +112,7 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 intent.putExtra("photo", routeImageUri);
                                 startActivity(intent);
                                 Glide.with(this)
-                                        .load(routeImageBitmap)
+                                        .load(uriToBitmap((Uri)getIntent().getExtras().get("editedPhoto")))
                                         .into(imagePreview);
 
                                 Log.d("BitmapDetails", "Photo captured and loaded successfully.");
@@ -127,6 +127,11 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 }
         );
+        if (getIntent().hasExtra("editedPhoto")) {
+            Glide.with(this)
+                    .load(uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto")))
+                    .into(imagePreview);
+        }
 
 
         // Set up back button
