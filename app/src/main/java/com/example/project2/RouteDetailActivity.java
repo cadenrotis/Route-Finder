@@ -88,8 +88,6 @@ public class RouteDetailActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.image_one).setOnClickListener(v -> {
-            Intent intent = new Intent(RouteDetailActivity.this, ImageEditActivity.class);
-            startActivity(intent);
         });
 
         // Set up BottomNavigationView
