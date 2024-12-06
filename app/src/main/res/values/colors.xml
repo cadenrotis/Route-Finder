@@ -18,4 +18,11 @@
 
     <color name="light_orange">#FFCC80</color>
     <color name="light_blue">#ADD8E6</color>
+    <color name="light_green">#AFE6AD</color>
+    <color name="light_red">#E6ADAD</color>
+
+    <color name="solid_orange">#FF9900</color>
+    <color name="solid_blue">#00C0FF</color>
+    <color name="solid_green">#09FF00</color>
+    <color name="solid_red">#FF0000</color>
 </resources>

@@ -126,4 +126,5 @@
         <item>@string/sort_by_popularity</item>
         <item>@string/sort_by_price</item>
     </string-array>
+    <string name="title_activity_image_edit">ImageEditActivity</string>
 </resources>
