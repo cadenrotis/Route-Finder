@@ -2,6 +2,7 @@ package com.example.project2;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -108,8 +109,11 @@ public class CreateRouteActivity extends AppCompatActivity {
                         try {
                             if (isUriValid(routeImageUri)) {
                                 routeImageBitmap = uriToBitmap(routeImageUri);
+                                Intent intent = new Intent(CreateRouteActivity.this, ImageEditActivity.class);
+                                intent.putExtra("photo", routeImageUri);
+                                startActivity(intent);
                                 Glide.with(this)
-                                        .load(routeImageBitmap)
+                                        .load(uriToBitmap((Uri)getIntent().getExtras().get("editedPhoto")))
                                         .into(imagePreview);
 
                                 Log.d("BitmapDetails", "Photo captured and loaded successfully.");
@@ -124,6 +128,11 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 }
         );
+        if (getIntent().hasExtra("editedPhoto")) {
+            Glide.with(this)
+                    .load(uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto")))
+                    .into(imagePreview);
+        }
 
 
         // Set up back button
