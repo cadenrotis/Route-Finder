@@ -112,9 +112,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 Intent intent = new Intent(CreateRouteActivity.this, ImageEditActivity.class);
                                 intent.putExtra("photo", routeImageUri);
                                 startActivity(intent);
-                                Glide.with(this)
-                                        .load(uriToBitmap((Uri)getIntent().getExtras().get("editedPhoto")))
-                                        .into(imagePreview);
 
                                 Log.d("BitmapDetails", "Photo captured and loaded successfully.");
                             } else {
@@ -129,8 +126,9 @@ public class CreateRouteActivity extends AppCompatActivity {
                 }
         );
         if (getIntent().hasExtra("editedPhoto")) {
+            routeImageBitmap = uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto"));
             Glide.with(this)
-                    .load(uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto")))
+                    .load(routeImageBitmap)
                     .into(imagePreview);
         }
 
@@ -250,7 +248,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return new String(byteArray, StandardCharsets.UTF_8);
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
     /**
