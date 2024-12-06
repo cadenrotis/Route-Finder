@@ -10,6 +10,7 @@ import android.graphics.drawable.shapes.ArcShape;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.RectShape;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -25,6 +26,9 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author Noah
@@ -65,9 +69,12 @@ public class ImageEditActivity extends AppCompatActivity {
 
         nav.setItemActiveIndicatorColor(getColorStateList(R.color.light_blue));
         //decodes a file into a bitmap. TODO: change this to use photo from phone and not resource file.
-        bmp = BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.test_image).copy(Bitmap.Config.ARGB_8888, true);
+        //bmp = BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.test_image).copy(Bitmap.Config.ARGB_8888, true);
+        bmp = uriToBitmap((Uri)getIntent().getExtras().get("photo")).copy(Bitmap.Config.ARGB_8888, true);
         //creates a canvas using the bitmap of the image as a base to be drawn on.
         canvas = new Canvas(bmp);
+
+        image.setImageBitmap(bmp);
 
         image.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -94,20 +101,24 @@ public class ImageEditActivity extends AppCompatActivity {
      */
     private void createCircle(int x, int y){
         //These offsets are used to correct the x and y values if the image does not have the same aspect ratio of the imageView.
-        heightOffset = (int)(image.getHeight() / 2 - ((double)image.getWidth() / getDrawable(R.drawable.test_image).getIntrinsicWidth()) * getDrawable(R.drawable.test_image).getIntrinsicHeight() / 2);
-        widthOffset = (int)(image.getWidth() / 2 - ((double)image.getHeight() / getDrawable(R.drawable.test_image).getIntrinsicHeight()) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / 2);
+        heightOffset = (int)(image.getHeight() / 2 - ((double)image.getWidth() / canvas.getWidth()) * canvas.getHeight() / 2);
+        widthOffset = (int)(image.getWidth() / 2 - ((double)image.getHeight() / canvas.getHeight()) * canvas.getWidth() / 2);
 
         final ShapeDrawable circle = new ShapeDrawable(new OvalShape());
         //100 pixel diameter circle TODO: Determine appropriate radius for phone image resolution.
-        circle.setIntrinsicHeight(100);
-        circle.setIntrinsicWidth(100);
+        circle.setIntrinsicHeight(CIRCLE_RADIUS * 2);
+        circle.setIntrinsicWidth(CIRCLE_RADIUS * 2);
         circle.getPaint().setColor(ContextCompat.getColor(this.getApplicationContext(), circleColor));
         if (heightOffset < 0){widthOffset = 0;} //heightOffset is < 0 when the image aspect ratio(H:W) is greater than the imageView's and therefore not necessary.
         if (widthOffset < 0){widthOffset = 0;} //widthOffset is < 0 when the image aspect ratio(H:W) is less than the imageView's and therefore not necessary.
-        int circleLeft = (x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicWidth() / 2;
-        int circleRight = (x - widthOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicWidth() / 2;
-        int circleTop = (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() - circle.getIntrinsicHeight() / 2;
-        int circleBottom = (y - heightOffset) * getDrawable(R.drawable.test_image).getIntrinsicWidth() / image.getWidth() + circle.getIntrinsicHeight() / 2;
+        int circleLeft = (int)((x - widthOffset) * (double)canvas.getWidth() / image.getWidth() - circle.getIntrinsicWidth() / 2);
+        int circleRight = (int)((x - widthOffset) * (double)canvas.getWidth() / image.getWidth() + circle.getIntrinsicWidth() / 2);
+        int circleTop = (int)((y - heightOffset) * (double)canvas.getWidth() / image.getWidth() - circle.getIntrinsicHeight() / 2);
+        int circleBottom = (int)((y - heightOffset) * (double)canvas.getWidth() / image.getWidth() + circle.getIntrinsicHeight() / 2);
+        Log.d("Canvas Width", canvas.getWidth() + "");
+        Log.d("ImageView Width", image.getWidth() + "");
+        Log.d("Circle Left", circleLeft + "");
+        Log.d("Circle Top", circleTop + "");
         //sets the area in which the circle will be drawn by translating the touch coordinates into image coordinates.
         circle.setBounds(circleLeft, circleTop, circleRight, circleBottom);
         //makes the circle a line instead of filled and sets line width.
@@ -192,5 +203,21 @@ public class ImageEditActivity extends AppCompatActivity {
         }
         float[] lineCords = {(float)(prevX + deltaX), (float)(prevY + deltaY), (float)(newX - deltaX), (float)(newY - deltaY)};
         return lineCords;
+    }
+
+    private Bitmap uriToBitmap(Uri uri) {
+        Bitmap bitmap = null;
+        try {
+            // Open an InputStream from the Uri
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                // Decode the InputStream to a Bitmap
+                bitmap = BitmapFactory.decodeStream(inputStream);
+                inputStream.close(); // Always close the stream to avoid memory leaks
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 }
