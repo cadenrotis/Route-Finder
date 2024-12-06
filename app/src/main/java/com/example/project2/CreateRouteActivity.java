@@ -1,8 +1,9 @@
 package com.example.project2;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,6 +14,8 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -23,19 +26,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Activity for allowing users to create a new route
  */
 public class CreateRouteActivity extends AppCompatActivity {
 
     private static final String TAG = "CreateRouteActivity";
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
 
     /**
      * Variables for elements in the activity_create_route.xml layout.
      */
-    private Uri routeImage;
+    private Uri routeImageUri;
+    private Bitmap routeImageBitmap;
+    private ActivityResultLauncher<Uri> takePhotoLauncher;
+
     private EditText titleInput, locationInput, slopeInput, difficultyInput, descriptionInput;
     private Button takePhotoButton, submitButton;
     private ImageButton backButton;
@@ -78,6 +86,19 @@ public class CreateRouteActivity extends AppCompatActivity {
         publicRadioButton = findViewById(R.id.radio_public);
         privateRadioButton = findViewById(R.id.radio_private);
 
+        // Initialize the launcher
+        takePhotoLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                result -> {
+                    if (result) {
+                        Toast.makeText(this, "Photo taken successfully!", Toast.LENGTH_SHORT).show();
+                        // You can load the image into an ImageView using routeImage Uri if needed
+                    } else {
+                        Toast.makeText(this, "Photo capture failed.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
         // Set up back button
         backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
 
@@ -89,22 +110,43 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     private void takePhoto() {
-        // Create an Intent to launch the camera
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
         // Create a content URI for the image and assign it to the routeImage variable
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, "New Route Photo");
         values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken for the route");
-        routeImage = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        routeImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
         // Pass the URI to the camera via the intent
-        if (routeImage != null) {
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, routeImage);
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        if (routeImageUri != null) {
+            takePhotoLauncher.launch(routeImageUri);
+            routeImageBitmap = uriToBitmap(routeImageUri);
         } else {
             Toast.makeText(this, "Failed to create image file.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Converts a Uri to a Bitmap.
+     *
+     * @param uri The URI of the image.
+     * @return The image as a Bitmap, or null if conversion fails.
+     * @throws IOException If an error occurs while reading the image.
+     * @throws IllegalArgumentException If the URI is {@code null}.
+     */
+    private Bitmap uriToBitmap(Uri uri) {
+        Bitmap bitmap = null;
+        try {
+            // Open an InputStream from the Uri
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                // Decode the InputStream to a Bitmap
+                bitmap = BitmapFactory.decodeStream(inputStream);
+                inputStream.close(); // Always close the stream to avoid memory leaks
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 
     /**
