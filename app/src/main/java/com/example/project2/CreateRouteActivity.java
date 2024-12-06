@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Activity for allowing users to create a new route
@@ -198,32 +199,6 @@ public class CreateRouteActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private Bitmap convertToSoftwareBitmap(Bitmap bitmap) {
-        if (bitmap.getConfig() == Bitmap.Config.HARDWARE) {
-            // Convert to a mutable software-based Bitmap
-            Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            bitmap.recycle(); // Free the original hardware Bitmap
-            return mutableBitmap;
-        }
-        return bitmap; // Return as-is if already in a safe configuration
-    }
-
-    /**
-     * Converts a Bitmap to a Base64 encoded String.
-     *
-     * @param bitmap The Bitmap to encode.
-     * @return The Base64 encoded String.
-     */
-    private String bitmapToString(Bitmap bitmap) {
-        // Ensure safe configuration
-        bitmap = convertToSoftwareBitmap(bitmap);
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(byteArray, Base64.DEFAULT);
-    }
-
     /**
      * Capitalize the first letter of each word in user's input to keep text consistent among all users.
      * @param text The text that the user has entered into the create route form.
@@ -245,6 +220,28 @@ public class CreateRouteActivity extends AppCompatActivity {
         }
 
         return capitalizedText.toString().trim();
+    }
+
+    private Bitmap convertToSoftwareBitmap(Bitmap bitmap) {
+        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        bitmap.recycle(); // Free the original Bitmap
+        return mutableBitmap;
+    }
+
+    /**
+     * Converts a Bitmap to a Base64 encoded String.
+     *
+     * @param bitmap The Bitmap to encode.
+     * @return The Base64 encoded String.
+     */
+    private String bitmapToString(Bitmap bitmap) {
+        // Ensure safe configuration
+        bitmap = convertToSoftwareBitmap(bitmap);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return new String(byteArray, StandardCharsets.UTF_8);
     }
 
     /**
@@ -283,6 +280,8 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setNumRatings(0);
         route.setAvgRating(0.0);
         String imageString = bitmapToString(routeImageBitmap);
+        Log.d("imageString", "String Length: " + imageString.length());
+        Log.d("imageString:", imageString);
         route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
