@@ -235,11 +235,11 @@ public class RouteDetailActivity extends AppCompatActivity {
 
         // Load images
         Glide.with(this)
-                .load(route.getPhoto())
+                .load(route.getPhotoAsBitmap())
                 .into(imageOne);
 
         Glide.with(this)
-                .load(route.getPhoto())
+                .load(route.getPhotoAsBitmap())
                 .into(imageTwo);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.project2;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.project2.model.Route;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Activity for allowing users to create a new route
@@ -49,6 +53,7 @@ public class CreateRouteActivity extends AppCompatActivity {
     private EditText titleInput, locationInput, slopeInput, difficultyInput, descriptionInput;
     private Button takePhotoButton, submitButton;
     private ImageButton backButton;
+    private ImageView imagePreview;
     private RadioButton publicRadioButton, privateRadioButton;
 
     /**
@@ -73,11 +78,16 @@ public class CreateRouteActivity extends AppCompatActivity {
                     new String[]{android.Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         }
 
+        if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+
         // Initialize Firestore
         firestore = FirebaseFirestore.getInstance();
 
         // Find UI components
         takePhotoButton = findViewById(R.id.take_photo_btn);
+        imagePreview = findViewById(R.id.image_preview);
         titleInput = findViewById(R.id.title_input);
         locationInput = findViewById(R.id.location_input);
         slopeInput = findViewById(R.id.slope_input);
@@ -93,36 +103,73 @@ public class CreateRouteActivity extends AppCompatActivity {
                 new ActivityResultContracts.TakePicture(),
                 result -> {
                     if (result) {
-                        Toast.makeText(this, "Photo taken successfully!", Toast.LENGTH_SHORT).show();
-                        // You can load the image into an ImageView using routeImage Uri if needed
+                        // Process the captured image only after the user takes a photo
+                        try {
+                            if (isUriValid(routeImageUri)) {
+                                routeImageBitmap = uriToBitmap(routeImageUri);
+                                Glide.with(this)
+                                        .load(routeImageBitmap)
+                                        .into(imagePreview);
+
+                                Log.d("BitmapDetails", "Photo captured and loaded successfully.");
+                            } else {
+                                Log.e("CreateRouteActivity", "Captured image URI is invalid.");
+                            }
+                        } catch (Exception e) {
+                            Log.e("CreateRouteActivity", "Error processing captured image.", e);
+                        }
                     } else {
-                        Toast.makeText(this, "Photo capture failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Photo capture canceled or failed.", Toast.LENGTH_SHORT).show();
                     }
                 }
         );
+
 
         // Set up back button
         backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
 
         //Set up take photo button
-        takePhotoButton.setOnClickListener(v -> takePhoto());
+        takePhotoButton.setOnClickListener(v -> {
+            try {
+                takePhoto();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         // Set up submit button
         submitButton.setOnClickListener(v -> handleSubmit());
     }
 
-    private void takePhoto() {
+    private boolean isUriValid(Uri uri) {
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            return inputStream != null;
+        } catch (Exception e) {
+            Log.e("CreateRouteActivity", "Invalid URI: " + uri, e);
+            return false;
+        }
+    }
+
+    private void takePhoto() throws IOException {
         // Create a content URI for the image and assign it to the routeImage variable
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, "New Route Photo");
         values.put(MediaStore.Images.Media.DESCRIPTION, "Photo taken for the route");
-        routeImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        ContentResolver resolver = getContentResolver();
+
+        routeImageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
 
         // Pass the URI to the camera via the intent
         if (routeImageUri != null) {
+            Log.d("routeImageURI", "PICTURE URI WAS SUCCESS");
+            Log.d("routeImageURI", "URI: " + routeImageUri.toString());
+            Log.d("routeImageURI", "Scheme: " + routeImageUri.getScheme());
+            Log.d("routeImageURI", "Authority: " + routeImageUri.getAuthority());
+            Log.d("routeImageURI", "Path: " + routeImageUri.getPath());
             takePhotoLauncher.launch(routeImageUri);
-            routeImageBitmap = uriToBitmap(routeImageUri);
         } else {
+            Log.e("BitmapDetails", "PICTURE BITMAP WAS NULL");
             Toast.makeText(this, "Failed to create image file.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -151,6 +198,16 @@ public class CreateRouteActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    private Bitmap convertToSoftwareBitmap(Bitmap bitmap) {
+        if (bitmap.getConfig() == Bitmap.Config.HARDWARE) {
+            // Convert to a mutable software-based Bitmap
+            Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            bitmap.recycle(); // Free the original hardware Bitmap
+            return mutableBitmap;
+        }
+        return bitmap; // Return as-is if already in a safe configuration
+    }
+
     /**
      * Converts a Bitmap to a Base64 encoded String.
      *
@@ -158,9 +215,12 @@ public class CreateRouteActivity extends AppCompatActivity {
      * @return The Base64 encoded String.
      */
     private String bitmapToString(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-        byte[] byteArray = outputStream.toByteArray();
+        // Ensure safe configuration
+        bitmap = convertToSoftwareBitmap(bitmap);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
@@ -191,6 +251,7 @@ public class CreateRouteActivity extends AppCompatActivity {
      * Handles the submission of the route creation form.
      */
     private void handleSubmit() {
+        Log.d("IN handleSubmit(): ", "IN METHOD handleSubmit()");
         // Get the current user
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -221,7 +282,8 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setDescription(description);
         route.setNumRatings(0);
         route.setAvgRating(0.0);
-        route.setPhoto(bitmapToString(routeImageBitmap));
+        String imageString = bitmapToString(routeImageBitmap);
+        route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
         if (publicRadioButton.isChecked()) {

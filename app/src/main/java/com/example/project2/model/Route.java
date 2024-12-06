@@ -127,21 +127,21 @@ public class Route {
     }
 
     /**
+     * Converts a Base64 encoded String (photo)back to a Bitmap.
+     *
+     * @return The photo as a decoded Bitmap.
+     */
+    public Bitmap getPhotoAsBitmap() {
+        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+    }
+
+    /**
      * Set a route's photo
      * @param photo A string that consists of a URL to a route's photo
      */
     public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    /**
-     * Converts a Base64 encoded String (photo)back to a Bitmap.
-     *
-     * @return The photo as a decoded Bitmap.
-     */
-    private Bitmap getPhotoAsBitmap() {
-        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 
     /**
