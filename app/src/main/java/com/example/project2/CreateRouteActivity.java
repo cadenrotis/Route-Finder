@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -150,6 +152,19 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     /**
+     * Converts a Bitmap to a Base64 encoded String.
+     *
+     * @param bitmap The Bitmap to encode.
+     * @return The Base64 encoded String.
+     */
+    private String bitmapToString(Bitmap bitmap) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+        byte[] byteArray = outputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
+    /**
      * Capitalize the first letter of each word in user's input to keep text consistent among all users.
      * @param text The text that the user has entered into the create route form.
      * @return Modified text where the first letter in each word is capitalized.
@@ -206,7 +221,7 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setDescription(description);
         route.setNumRatings(0);
         route.setAvgRating(0.0);
-        route.setPhoto(null);
+        route.setPhoto(bitmapToString(routeImageBitmap));
 
         // Check the selected access type via the radio button checked by the user
         if (publicRadioButton.isChecked()) {

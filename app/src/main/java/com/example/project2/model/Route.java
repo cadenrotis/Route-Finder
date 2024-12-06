@@ -1,5 +1,9 @@
 package com.example.project2.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 /**
@@ -128,6 +132,16 @@ public class Route {
      */
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    /**
+     * Converts a Base64 encoded String (photo)back to a Bitmap.
+     *
+     * @return The photo as a decoded Bitmap.
+     */
+    private Bitmap getPhotoAsBitmap() {
+        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 
     /**
