@@ -212,6 +212,14 @@ public class ImageEditActivity extends AppCompatActivity {
         return lineCords;
     }
 
+    /**
+     * Converts a Uri to a Bitmap.
+     *
+     * @param uri The URI of the image.
+     * @return The image as a Bitmap, or null if conversion fails.
+     * @throws IOException If an error occurs while reading the image.
+     * @throws IllegalArgumentException If the URI is {@code null}.
+     */
     private Bitmap uriToBitmap(Uri uri) {
         Bitmap bitmap = null;
         try {
@@ -219,7 +227,9 @@ public class ImageEditActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream != null) {
                 // Decode the InputStream to a Bitmap
-                bitmap = BitmapFactory.decodeStream(inputStream);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                bitmap = BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close(); // Always close the stream to avoid memory leaks
             }
         } catch (IOException e) {

@@ -208,7 +208,9 @@ public class CreateRouteActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream != null) {
                 // Decode the InputStream to a Bitmap
-                bitmap = BitmapFactory.decodeStream(inputStream);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                bitmap = BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close(); // Always close the stream to avoid memory leaks
             }
         } catch (IOException e) {
@@ -301,7 +303,7 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         String imageString = bitmapToString(routeImageBitmap);
         Log.d("imageString", "String Length: " + imageString.length());
-        Log.d("imageString:", imageString);
+        //Log.d("imageString:", imageString);
         route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
