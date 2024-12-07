@@ -128,8 +128,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 Intent intent = new Intent(CreateRouteActivity.this, ImageEditActivity.class);
                                 intent.putExtra("photo", routeImageUri);
                                 editImageLauncher.launch(intent);
-
-                                Log.d("BitmapDetails", "Photo captured and loaded successfully.");
                             } else {
                                 Log.e("CreateRouteActivity", "Captured image URI is invalid.");
                             }
