@@ -6,15 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.ArcShape;
 import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.PathShape;
-import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -24,22 +19,20 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.compose.ui.graphics.vector.PathNode;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author Noah
+ * @author Noah & Lex
  * This class allows the user to edit a photo and upload it to the database.
  */
 public class ImageEditActivity extends AppCompatActivity {
-    //TODO: update navigation to this page
     private ImageView image;
     private BottomNavigationView nav;
     private Button uploadBtn;
@@ -72,7 +65,6 @@ public class ImageEditActivity extends AppCompatActivity {
         uploadBtn = findViewById(R.id.upload_btn);
 
         nav.setItemActiveIndicatorColor(getColorStateList(R.color.light_blue));
-        //decodes a file into a bitmap. TODO: change this to use photo from phone and not resource file.
         //bmp = BitmapFactory.decodeResource(this.getApplicationContext().getResources(), R.drawable.test_image).copy(Bitmap.Config.ARGB_8888, true);
         bmp = uriToBitmap((Uri)getIntent().getExtras().get("photo")).copy(Bitmap.Config.ARGB_8888, true);
         //creates a canvas using the bitmap of the image as a base to be drawn on.
@@ -91,13 +83,10 @@ public class ImageEditActivity extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: add upload code
-//                Intent intent = new Intent(ImageEditActivity.this, CreateRouteActivity.class);
-//                intent.putExtra("editedPhoto", getImageUri(getApplicationContext(), bmp));
-//                startActivity(intent);
-
+                Uri editedImage = getImageUri(getApplicationContext(), bmp);
+                Log.d("ImageEditActivity", "Edited Photo URI: " + editedImage);
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("editedPhoto", getImageUri(getApplicationContext(), bmp));
+                resultIntent.putExtra("editedImage", editedImage);
                 setResult(RESULT_OK, resultIntent);
                 finish();
             }
@@ -239,10 +228,22 @@ public class ImageEditActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
+    public static Uri getImageUri(Context context, Bitmap bitmap) {
+        // Create a file in the app's cache directory
+        File imagesDir = new File(context.getCacheDir(), "images");
+        if (!imagesDir.exists()) {
+            imagesDir.mkdirs();
+        }
+
+        File imageFile = new File(imagesDir, "image_" + System.currentTimeMillis() + ".png");
+        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+            // Compress the bitmap and save it to the file
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Return the Uri for the file
+        return Uri.fromFile(imageFile);
     }
 }
