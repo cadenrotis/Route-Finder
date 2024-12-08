@@ -17,6 +17,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import android.graphics.Bitmap;
+
 /**
  * RecyclerView adapter that displays the route previews in the dashboard view
  */
@@ -106,12 +108,12 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
          */
         public void bind(final DocumentSnapshot snapshot, final OnRouteSelectedListener listener) {
             Route route = snapshot.toObject(Route.class);
-            Resources resources = itemView.getResources();
-            //TODO
 
-            Glide.with(iconView.getContext())
-                    .load(route.getPhoto())
-                    .into(iconView);
+            // Convert the Base64 photo string to a Bitmap
+            Bitmap photoBitmap = route.getPhotoAsBitmap();
+
+            // Set the converted Bitmap to the ImageView
+            iconView.setImageBitmap(photoBitmap);
 
             // Set the text for several TextViews
             titleView.setText(route.getTitle());
