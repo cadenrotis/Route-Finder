@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.bumptech.glide.Glide;
 import com.example.project2.model.Route;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,11 +33,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * Activity for allowing users to create a new route
@@ -106,18 +100,18 @@ public class CreateRouteActivity extends AppCompatActivity {
         ActivityResultLauncher<Intent> editImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    Log.d("CreateRouteActivity", "In ImageEditActivity Return");
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri editedPhotoUri = (Uri) result.getData().getExtras().get("editedImage");
-                        if (editedPhotoUri != null) {
-                            Log.d("EditImageReturn", "Edited Photo URI: " + editedPhotoUri);
-                            routeImageBitmap = uriToBitmap(editedPhotoUri);
-                            imagePreview.setImageBitmap(routeImageBitmap);
-                            Log.d("EditImageReturn", "Photo captured, edited, and loaded successfully.");
+                        Uri editedImageUri = (Uri) result.getData().getExtras().get("editedImage");
+                        Log.d("CreateRouteActivity", "Edited Photo Uri: " + editedImageUri);
+                        routeImageBitmap = copyBitmap(uriToBitmap(editedImageUri));
+                        Log.d("CreateRouteActivity", "Edited Photo Bitmap: " + routeImageBitmap);
 
-                            String temp = bitmapToString(routeImageBitmap);
-                            Log.d("Editted imageString:", temp);
+                        if (routeImageBitmap != null) {
+                            imagePreview.setImageBitmap(routeImageBitmap);
+                            Log.d("CreateRouteActivity", "Photo captured, edited, and loaded successfully.");
                         } else {
-                            Log.e("EditImageReturn", "Edited photo URI is null.");
+                            Log.e("CreateRouteActivity", "Edited photo URI is null.");
                         }
                     }
                 }
@@ -131,12 +125,9 @@ public class CreateRouteActivity extends AppCompatActivity {
                         // Process the captured image only after the user takes a photo
                         try {
                             if (isUriValid(routeImageUri)) {
-                                routeImageBitmap = uriToBitmap(routeImageUri);
                                 Intent intent = new Intent(CreateRouteActivity.this, ImageEditActivity.class);
                                 intent.putExtra("photo", routeImageUri);
                                 editImageLauncher.launch(intent);
-
-                                Log.d("BitmapDetails", "Photo captured and loaded successfully.");
                             } else {
                                 Log.e("CreateRouteActivity", "Captured image URI is invalid.");
                             }
@@ -148,14 +139,6 @@ public class CreateRouteActivity extends AppCompatActivity {
                     }
                 }
         );
-
-//        if (getIntent().hasExtra("editedPhoto")) {
-//            routeImageBitmap = uriToBitmap((Uri) getIntent().getExtras().get("editedPhoto"));
-//            Glide.with(this)
-//                    .load(routeImageBitmap)
-//                    .into(imagePreview);
-//        }
-
 
         // Set up back button
         backButton.setOnClickListener(v -> finish()); // goes back to dashboard view
@@ -171,6 +154,10 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         // Set up submit button
         submitButton.setOnClickListener(v -> handleSubmit());
+    }
+
+    private Bitmap copyBitmap(Bitmap original) {
+        return original.copy(original.getConfig(), true); // Create a mutable copy
     }
 
     private boolean isUriValid(Uri uri) {
@@ -221,7 +208,9 @@ public class CreateRouteActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             if (inputStream != null) {
                 // Decode the InputStream to a Bitmap
-                bitmap = BitmapFactory.decodeStream(inputStream);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                bitmap = BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close(); // Always close the stream to avoid memory leaks
             }
         } catch (IOException e) {
@@ -314,7 +303,7 @@ public class CreateRouteActivity extends AppCompatActivity {
 
         String imageString = bitmapToString(routeImageBitmap);
         Log.d("imageString", "String Length: " + imageString.length());
-        Log.d("imageString:", imageString);
+        //Log.d("imageString:", imageString);
         route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
