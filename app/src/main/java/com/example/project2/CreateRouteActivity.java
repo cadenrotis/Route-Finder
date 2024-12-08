@@ -100,18 +100,18 @@ public class CreateRouteActivity extends AppCompatActivity {
         ActivityResultLauncher<Intent> editImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    Log.d("CreateRouteActivity", "In ImageEditActivity Return");
+                    Log.d(TAG, "In ImageEditActivity Return");
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Uri editedImageUri = (Uri) result.getData().getExtras().get("editedImage");
-                        Log.d("CreateRouteActivity", "Edited Photo Uri: " + editedImageUri);
+                        Log.d(TAG, "Edited Photo Uri: " + editedImageUri);
                         routeImageBitmap = copyBitmap(uriToBitmap(editedImageUri));
-                        Log.d("CreateRouteActivity", "Edited Photo Bitmap: " + routeImageBitmap);
+                        Log.d(TAG, "Edited Photo Bitmap: " + routeImageBitmap);
 
                         if (routeImageBitmap != null) {
                             imagePreview.setImageBitmap(routeImageBitmap);
-                            Log.d("CreateRouteActivity", "Photo captured, edited, and loaded successfully.");
+                            Log.d(TAG, "Photo captured, edited, and loaded successfully.");
                         } else {
-                            Log.e("CreateRouteActivity", "Edited photo URI is null.");
+                            Log.e(TAG, "Edited photo URI is null.");
                         }
                     }
                 }
@@ -129,10 +129,10 @@ public class CreateRouteActivity extends AppCompatActivity {
                                 intent.putExtra("photo", routeImageUri);
                                 editImageLauncher.launch(intent);
                             } else {
-                                Log.e("CreateRouteActivity", "Captured image URI is invalid.");
+                                Log.e(TAG, "Captured image URI is invalid.");
                             }
                         } catch (Exception e) {
-                            Log.e("CreateRouteActivity", "Error processing captured image.", e);
+                            Log.e(TAG, "Error processing captured image.", e);
                         }
                     } else {
                         Toast.makeText(this, "Photo capture canceled or failed.", Toast.LENGTH_SHORT).show();
@@ -257,7 +257,6 @@ public class CreateRouteActivity extends AppCompatActivity {
     private String bitmapToString(Bitmap bitmap) {
         // Ensure safe configuration
         bitmap = convertToSoftwareBitmap(bitmap);
-
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
@@ -302,8 +301,8 @@ public class CreateRouteActivity extends AppCompatActivity {
         route.setAvgRating(0.0);
 
         String imageString = bitmapToString(routeImageBitmap);
-        Log.d("imageString", "String Length: " + imageString.length());
-        //Log.d("imageString:", imageString);
+        Log.d(TAG, "imageString Length: " + imageString.length());
+        Log.d("imageString:", imageString);
         route.setPhoto(imageString);
 
         // Check the selected access type via the radio button checked by the user
