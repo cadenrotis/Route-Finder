@@ -118,13 +118,6 @@
             android:layout_weight="1"
             android:background="@color/greyLight" />
 
-        <ImageView
-            android:id="@+id/image_two"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:background="@color/greyLight"
-            android:layout_marginStart="8dp" />
     </LinearLayout>
 
     <!-- Description Section -->

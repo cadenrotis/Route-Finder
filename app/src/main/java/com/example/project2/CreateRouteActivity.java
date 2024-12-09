@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
@@ -20,19 +21,30 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.project2.model.Route;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Activity for allowing users to create a new route
@@ -54,6 +66,7 @@ public class CreateRouteActivity extends AppCompatActivity {
     private ImageButton backButton;
     private ImageView imagePreview;
     private RadioButton publicRadioButton, privateRadioButton;
+    private byte[] photoBytes;
 
     /**
      * Firebase Firestore instance
@@ -244,7 +257,7 @@ public class CreateRouteActivity extends AppCompatActivity {
 
     private Bitmap convertToSoftwareBitmap(Bitmap bitmap) {
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-        bitmap.recycle(); // Free the original Bitmap
+        //bitmap.recycle(); // Free the original Bitmap
         return mutableBitmap;
     }
 
@@ -328,19 +341,30 @@ public class CreateRouteActivity extends AppCompatActivity {
      * @param route The route to save.
      */
     private void saveRouteToFirestore(String collection, Route route) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        routeImageBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        photoBytes = (byteArray);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a storage reference from our app
+        StorageReference storageRef = storage.getReferenceFromUrl("gs://project-2-1d31a.firebasestorage.app");
+        StorageReference riversRef = storageRef.child("RoutePhotos/" + route.getTitle() + ".jpeg");
+        UploadTask uploadTask = riversRef.putBytes(photoBytes);
+
+        route.setPhoto("");
         firestore.collection(collection)
                 .add(route)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "Route added to " + collection + " with ID: " + documentReference.getId());
                     if (collection.equals("user_routes")) {
-                        Toast.makeText(this, "Route added to your routes!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Route added to your routes!", Toast.LENGTH_SHORT).show();
                     } else if (collection.equals("community_routes")) {
-                        Toast.makeText(this, "Route added to the community!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Route added to the community!", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error adding route to " + collection, e);
-                    Toast.makeText(this, "Failed to add route to " + collection, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Failed to add route to " + collection, Toast.LENGTH_SHORT).show();
                 });
     }
 }

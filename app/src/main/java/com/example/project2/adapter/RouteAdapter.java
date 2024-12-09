@@ -1,6 +1,8 @@
 package com.example.project2.adapter;
 
 import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.project2.R;
 import com.example.project2.model.Route;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import android.graphics.Bitmap;
+
+import java.util.Arrays;
 
 /**
  * RecyclerView adapter that displays the route previews in the dashboard view
@@ -108,12 +116,20 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
          */
         public void bind(final DocumentSnapshot snapshot, final OnRouteSelectedListener listener) {
             Route route = snapshot.toObject(Route.class);
-
-            // Convert the Base64 photo string to a Bitmap
-            Bitmap photoBitmap = route.getPhotoAsBitmap();
-
-            // Set the converted Bitmap to the ImageView
-            iconView.setImageBitmap(photoBitmap);
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            // Create a storage reference from our app
+            StorageReference storageRef = storage.getReferenceFromUrl("gs://project-2-1d31a.firebasestorage.app");
+            StorageReference riversRef = storageRef.child("RoutePhotos/" + route.getTitle() + ".jpeg");
+            riversRef.getBytes(10000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                @Override
+                public void onSuccess(byte[] bytes) {
+                    // Convert the Base64 photo string to a Bitmap
+                    Bitmap photoBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    Log.d("Cloud return", Arrays.toString(bytes));
+                    Log.d("Cloud return", bytes.length + "");
+                    // Set the converted Bitmap to the ImageView
+                    iconView.setImageBitmap(photoBitmap);}
+            });
 
             // Set the text for several TextViews
             titleView.setText(route.getTitle());

@@ -1,6 +1,8 @@
 package com.example.project2;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,11 +19,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.project2.model.Route;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.Arrays;
 
 /**
  * Activity for displaying information about a route when clicked on in the dashboard view
@@ -76,7 +83,6 @@ public class RouteDetailActivity extends AppCompatActivity {
         routeDescription = findViewById(R.id.route_description);
         communityRatingBar = findViewById(R.id.community_rating_bar);
         imageOne = findViewById(R.id.image_one);
-        imageTwo = findViewById(R.id.image_two);
 
         // Load route details
         loadRouteDetails();
@@ -88,6 +94,9 @@ public class RouteDetailActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.image_one).setOnClickListener(v -> {
+            Intent intent = new Intent(RouteDetailActivity.this, ImageFullscreenActivity.class);
+            intent.putExtra("Route Title", routeTitle.getText());
+            startActivity(intent);
         });
 
         // Set up BottomNavigationView
@@ -231,10 +240,23 @@ public class RouteDetailActivity extends AppCompatActivity {
         routeDescription.setText(route.getDescription());
         communityRatingBar.setRating((float) route.getAvgRating());
 
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a storage reference from our app
+        StorageReference storageRef = storage.getReferenceFromUrl("gs://project-2-1d31a.firebasestorage.app");
+        StorageReference riversRef = storageRef.child("RoutePhotos/" + route.getTitle() + ".jpeg");
         // Load images
-        Glide.with(this)
-                .load(route.getPhotoAsBitmap())
-                .into(imageOne);
+        riversRef.getBytes(10000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                // Convert the Base64 photo string to a Bitmap
+                Bitmap photoBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Log.d("Cloud return", Arrays.toString(bytes));
+                Log.d("Cloud return", bytes.length + "");
+                // Set the converted Bitmap to the ImageView
+                imageOne.setImageBitmap(photoBitmap);
+            }
+        });
+
 
 //        Glide.with(this)
 //                .load(route.getPhotoAsBitmap())
