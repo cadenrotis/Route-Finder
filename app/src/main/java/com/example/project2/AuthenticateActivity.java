@@ -38,11 +38,11 @@ public class AuthenticateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Check if user is already logged in. If they are, then skip authentication process
-        FirebaseUser currentUser = FirebaseUtil.getAuth().getCurrentUser();
-        if (currentUser != null) {
-            navigateToDashboard();
-            return;
-        }
+//        FirebaseUser currentUser = FirebaseUtil.getAuth().getCurrentUser();
+//        if (currentUser != null) {
+//            navigateToDashboard();
+//            return;
+//        }
 
         setContentView(R.layout.activity_login);
 

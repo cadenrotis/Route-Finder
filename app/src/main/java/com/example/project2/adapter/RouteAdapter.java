@@ -45,13 +45,6 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
     private OnRouteSelectedListener mListener;
 
     /**
-     * Variables for Firestore
-     */
-    private FirebaseFirestore mFirestore;
-    private Query mQuery;
-    private RouteAdapter mAdapter;
-
-    /**
      * Constructor for RouteAdapter that takes a Firestore Query and a listener
      * @param query    Firestore query
      * @param listener Listener for route selection events
@@ -117,6 +110,7 @@ public class RouteAdapter extends FirestoreAdapter<RouteAdapter.ViewHolder> {
         public void bind(final DocumentSnapshot snapshot, final OnRouteSelectedListener listener) {
             Route route = snapshot.toObject(Route.class);
             FirebaseStorage storage = FirebaseStorage.getInstance();
+
             // Create a storage reference from our app
             StorageReference storageRef = storage.getReferenceFromUrl("gs://project-2-1d31a.firebasestorage.app");
             StorageReference riversRef = storageRef.child("RoutePhotos/" + route.getTitle() + ".jpeg");

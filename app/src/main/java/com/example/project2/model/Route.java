@@ -36,7 +36,6 @@ public class Route {
     private String photo;
     private String slope;
     private String description;
-    private int numRatings;
     private double avgRating;
     private int difficultyOrder; // Used for sorting routes by their difficulty
     private int slopeOrder;      // Used for sorting routes by their slope
@@ -65,7 +64,6 @@ public class Route {
         this.photo = photo;
         this.slope = slope;
         this.description = description;
-        this.numRatings = numRatings;
         this.avgRating = avgRating;
         this.difficultyOrder = calculateDifficultyOrder(difficulty);
         this.slopeOrder = calculateSlopeOrder(slope);
@@ -121,24 +119,6 @@ public class Route {
     }
 
     /**
-     * Get a route's photo
-     * @return A string that consists of a URL to a route's photo
-     */
-    public String getPhoto() {
-        return photo;
-    }
-
-    /**
-     * Converts a Base64 encoded String (photo)back to a Bitmap.
-     *
-     * @return The photo as a decoded Bitmap.
-     */
-    public Bitmap getPhotoAsBitmap() {
-        byte[] decodedBytes = Base64.decode(photo, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-    }
-
-    /**
      * Set a route's photo
      * @param photo A string that consists of a URL to a route's photo
      */
@@ -177,22 +157,6 @@ public class Route {
      */
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    /**
-     * Get the number of ratings for a route
-     * @return An integer that consists of a route's number of ratings
-     */
-    public int getNumRatings() {
-        return numRatings;
-    }
-
-    /**
-     * Set the number of ratings for a route
-     * @param numRatings An integer that consists of a route's number of ratings
-     */
-    public void setNumRatings(int numRatings) {
-        this.numRatings = numRatings;
     }
 
     /**

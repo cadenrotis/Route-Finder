@@ -43,35 +43,11 @@ public class Rating {
     }
 
     /**
-     * Get the user ID for the user that set the rating/review.
-     * @return A string that consists of the user ID.
-     */
-    public String getUserId() {
-        return userId;
-    }
-
-    /**
-     * Set the user ID for the user that set the rating/review.
-     * @param userId A string that consists of the user ID.
-     */
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    /**
      * Get the username for the user that set the rating/review.
      * @return A string that consists of the username.
      */
     public String getUserName() {
         return userName;
-    }
-
-    /**
-     * Set the username for the user that set the rating/review.
-     * @param userName A string that consists of the username.
-     */
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public double getRating() {
@@ -100,22 +76,6 @@ public class Rating {
      */
     public void setText(String text) {
         this.text = text;
-    }
-
-    /**
-     * Get the timestamp for when the rating/review was posted.
-     * @return A Date object representing the timestamp.
-     */
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set the timestamp for when the rating/review was posted.
-     * @param timestamp A Date object representing the timestamp.
-     */
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
     }
 
     /**

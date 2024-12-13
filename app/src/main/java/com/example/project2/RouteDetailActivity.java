@@ -256,10 +256,5 @@ public class RouteDetailActivity extends AppCompatActivity {
                 imageOne.setImageBitmap(photoBitmap);
             }
         });
-
-
-//        Glide.with(this)
-//                .load(route.getPhotoAsBitmap())
-//                .into(imageTwo);
     }
 }
