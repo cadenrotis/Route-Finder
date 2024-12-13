@@ -308,7 +308,7 @@ public class CreateRouteActivity extends AppCompatActivity {
     }
 
     /**
-     * Saves a route to the correct collection in the Firestore database.
+     * Saves a route to the correct collection in the Firestore database. Stores the related image to Firebase Cloud Storage using the route name.
      * @param collection The collection to save the route to.
      * @param route The route to save.
      */

@@ -102,7 +102,7 @@ public class ImageEditActivity extends AppCompatActivity {
     }
 
     /**
-     * This method is draws a circle at the given touch coordinates on the cnavas.
+     * This method is draws a circle at the given touch coordinates on the canvas.
      * @param x x touch coordinate
      * @param y y touch coordinate
      */
@@ -112,7 +112,7 @@ public class ImageEditActivity extends AppCompatActivity {
         widthOffset = (int)(image.getWidth() / 2 - ((double)image.getHeight() / canvas.getHeight()) * canvas.getWidth() / 2);
 
         final ShapeDrawable circle = new ShapeDrawable(new OvalShape());
-        //100 pixel diameter circle TODO: Determine appropriate radius for phone image resolution.
+        //100 pixel diameter circle
         circle.setIntrinsicHeight(CIRCLE_RADIUS * 2);
         circle.setIntrinsicWidth(CIRCLE_RADIUS * 2);
         circle.getPaint().setColor(ContextCompat.getColor(this.getApplicationContext(), circleColor));
@@ -130,7 +130,7 @@ public class ImageEditActivity extends AppCompatActivity {
         circle.setBounds(circleLeft, circleTop, circleRight, circleBottom);
         //makes the circle a line instead of filled and sets line width.
         circle.getPaint().setStyle(Paint.Style.STROKE);
-        circle.getPaint().setStrokeWidth(CIRCLE_STROKE_WIDTH); //TODO: Determine appropriate line width for phone image resolution.
+        circle.getPaint().setStrokeWidth(CIRCLE_STROKE_WIDTH);
         //draw the circle onto the image.
         circle.draw(canvas);
 
@@ -238,6 +238,12 @@ public class ImageEditActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    /**
+     * Returns the Uri of a saved image from a bitmap
+     * @param context Application context for file
+     * @param bitmap bitmap of image to be saved to file
+     * @return the Uri of the saved image
+     */
     public static Uri getImageUri(Context context, Bitmap bitmap) {
         // Create a file in the app's cache directory
         File imagesDir = new File(context.getCacheDir(), "images");
