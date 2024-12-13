@@ -176,38 +176,6 @@ public class Route {
     }
 
     /**
-     * Get the difficulty order for sorting routes by difficulty.
-     * @return An integer used to sort routes by their difficulty.
-     */
-    public int getDifficultyOrder() {
-        return difficultyOrder;
-    }
-
-    /**
-     * Set the difficulty order for sorting routes by difficulty.
-     * @param difficultyOrder An integer used to sort routes by their difficulty.
-     */
-    public void setDifficultyOrder(int difficultyOrder) {
-        this.difficultyOrder = difficultyOrder;
-    }
-
-    /**
-     * Get the slope order for sorting routes by slope.
-     * @return An integer used to sort routes by their slope.
-     */
-    public int getSlopeOrder() {
-        return slopeOrder;
-    }
-
-    /**
-     * Set the slope order for sorting routes by slope.
-     * @param slopeOrder An integer used to sort routes by their slope.
-     */
-    public void setSlopeOrder(int slopeOrder) {
-        this.slopeOrder = slopeOrder;
-    }
-
-    /**
      * Helper method to calculate the difficulty order for sorting by difficulty
      * @param difficulty The difficulty of the route
      * @return An integer used to sort routes by their difficulty

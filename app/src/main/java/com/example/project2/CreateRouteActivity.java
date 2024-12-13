@@ -169,10 +169,20 @@ public class CreateRouteActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v -> handleSubmit());
     }
 
+    /**
+     * Creates a mutable copy of a given bitmap
+     * @param original bitmap to be copied
+     * @return mutable copy of original
+     */
     private Bitmap copyBitmap(Bitmap original) {
         return original.copy(original.getConfig(), true); // Create a mutable copy
     }
 
+    /**
+     * Checks if given Uri is valid for the local device
+     * @param uri Uri to be checked
+     * @return true if valid Uri
+     */
     private boolean isUriValid(Uri uri) {
         try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
             return inputStream != null;
@@ -182,6 +192,10 @@ public class CreateRouteActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Uses MediaStore library to launch photo taking activity
+     * @throws IOException
+     */
     private void takePhoto() throws IOException {
         // Create a content URI for the image and assign it to the routeImage variable
         ContentValues values = new ContentValues();
