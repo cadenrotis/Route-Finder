@@ -8,12 +8,12 @@ Route Finder is an Android application designed for climbers to create, share, a
 
 # My Role:
 I focused on both the frontend and backend integration for this app by:
- - Creating all the different views within the app
- - Adding backend functionality to store and fetch route documents within mulitple collection from Firebase Firestore
- - Making a reviews (comments and rating) section for users to interact with the routes
-       - Added backend functionality to store and fetch reviews from Firebase Firestore
- - Creating navigation menus to ensure a seamless transition between all views within the app
- - Helped with getting byte arrays of images to be stored, and then pulled from Firebase Cloud storage
+ * Creating all the different views within the app
+ * Adding backend functionality to store and fetch route documents within mulitple collection from Firebase Firestore
+ * Making a reviews (comments and rating) section for users to interact with the routes
+   - Added backend functionality to store and fetch reviews from Firebase Firestore
+ * Creating navigation menus to ensure a seamless transition between all views within the app
+ * Helped with getting byte arrays of images to be stored, and then pulled from Firebase Cloud storage
 
 # Learnings:
 During this project I learned a lot about using Firebase Firestore to store and pull information needed for our app. I also learned the best process of storing multiple images within Firebase, where you should convert images to byte arrays, and then upload those arrays to Firebase Cloud storage. You can then easily download the stored images by referencing their exact filename within the cloud storage. I also learned a lot more about xml files and creating unique layouts.
